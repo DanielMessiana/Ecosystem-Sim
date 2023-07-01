@@ -1,0 +1,177 @@
+import random as rand
+import numpy as np
+import time, json
+import matplotlib.pyplot as plt
+
+# Eco System Simulator
+
+class Rabbit:
+	def __init__(self, number, gender, speed, age):
+		self.number = number
+		self.gender = gender
+		self.speed = speed
+		self.age = age
+		# Female
+		if gender == 1:
+			self.fertility = rand.randint(1,3)
+	def set_age(self, age):
+		self.age = age
+
+	def set_number(self, number):
+		self.number = number
+
+class Fox: 
+	def __init__(self, number, hunger):
+		self.number = number
+		self.hunger = hunger
+
+	def set_hunge(self, hunger):
+		self.hunger = hunger
+
+
+main = True
+simulation = True
+firstgame = True
+rpop = []
+rpopulation = 0
+rnumber = 0
+rspeeds = []
+rabbitfood = 0
+deadrabbits = 0
+rmating = 10
+g = 0
+s = 0
+# Fox Variables
+fpop = []
+fpopulation = 0
+fnumber = 0
+day = 1
+year = 12
+
+
+def createrabbit(x):
+	global rnumber, rpop, rpopulation
+	while(x > 0):
+		rnumber += 1
+		rpop.append(Rabbit(rnumber, rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5)))
+		x -= 1
+		rpopulation += 1
+
+def createfox(x):
+	global fnumber, fpop, fpopulation
+	while(x > 0):
+		fnumber += 1
+		fpop.append(Fox(fnumber, rand.randint(3, 5)))
+		x -= 1
+		fpopulation += 1
+
+def genrabbitfood():
+	global rpopulation, rabbitfood, deadrabbits
+	luck = rand.randint(1, 9)
+	if luck <= 8:
+		rabbitfood = rpopulation
+	elif luck > 8:
+		rabbitfood = rpopulation - rand.randint(5, 10)
+	deadrabbits = rpopulation - rabbitfood
+
+def foxeat():
+	global deadrabbits
+	for obj in fpop:
+		rpop.sort(key=lambda x: x.speed)
+		for obj in rpop:
+			
+
+	
+def slowestdie(deadrabbits):
+	global rpopulation, rpop
+	rpop.sort(key=lambda x: x.speed)
+	while deadrabbits > 0:
+		rpop.pop()
+		rpopulation -= 1
+		deadrabbits -= 1
+	rpop.sort(key=lambda x: x.number)
+
+def rabbitbirth():
+	global rmating, offspring
+	if day == rmating:
+		offspring = 0
+		for obj in rpop:
+			if obj.gender == 1:
+				offspring += obj.fertility
+		createoffspring(offspring)
+		rmating += rand.randint(18, 25)
+		# listrabbits()
+
+def createoffspring(offspring):
+	global rnumber, rpopulation, rmating, rpop
+	while offspring > 0:
+		for obj in rpop:
+			if obj.age >= 1 and obj.age <= 4:
+				if obj.gender == 0:
+					rnumber += 1
+					s = obj.speed + rand.randint(-3, 3)
+					rpop.append(Rabbit(rnumber, rand.randint(0, 1), s, 0))
+					offspring -= 1
+					rpopulation += 1
+
+# json_string = json.dumps([ob.__dict__ for ob in rpop])
+# print(json_string)
+def listrabbits():
+	for obj in rpop:
+		rspeeds.append(obj.speed)
+	rspeeds.sort()
+	plt.plot(rspeeds)
+	plt.show()
+
+def nextday():
+	global rpopulation, rabbitfood, deadrabbits, rmating, rpop
+	print(" ")
+	print("Day: " + str(day))
+	rpopulation = len(rpop)
+	if rabbitfood < rpopulation:
+		print("There was a food shortage!! The " + str(deadrabbits) + " slowest rabbits starved.")
+		slowestdie(deadrabbits)
+	print("Rabbit Population: " + str(rpopulation))
+
+def nextyear():
+	global rpopulation, day, year, rpop
+	passers = 0
+	rpop.sort(key=lambda x: x.number, reverse=True)
+	for obj in rpop:
+		obj.set_age(obj.age + 1)
+		if obj.age == 9:
+			rpop.pop(int(obj.number - 1))
+			rpopulation -= 1
+			passers += 1
+		if obj.age > 2:
+			c = obj.age * 5
+			if rand.randint(0, 100) <= c:
+				rpop.pop(int(obj.number - 1))
+				rpopulation -= 1
+				passers += 1
+	year += 12
+	print(str(passers) + " rabbits have died of old age.")
+
+def fixrnumbers():
+	for i in range(len(rpop)):
+		rpop[i].set_number(i)
+
+
+createrabbit(50)
+#listrabbits()
+while simulation == True:
+	genrabbitfood()
+	nextday()
+
+	if rpopulation >= 1:
+		rabbitbirth()
+		fixrnumbers()
+		if rpopulation >= 100000:
+			time.sleep(1)
+
+		day += 1
+		if day == year:
+			nextyear()
+	elif rpopulation <= 0:
+		simulation = False
+	
