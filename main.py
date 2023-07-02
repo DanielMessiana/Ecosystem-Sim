@@ -29,7 +29,6 @@ class Fox:
 		self.hunger = hunger
 
 
-main = True
 simulation = True
 firstgame = True
 rpop = []
