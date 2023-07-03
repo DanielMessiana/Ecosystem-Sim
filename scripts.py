@@ -1,53 +1,8 @@
+# functions
 import random as rand
 import numpy as np
 import time, json
 import matplotlib.pyplot as plt
-
-# Eco System Simulator
-
-class Rabbit:
-	def __init__(self, number, gender, speed, age):
-		self.number = number
-		self.gender = gender
-		self.speed = speed
-		self.age = age
-		# Female
-		if gender == 1:
-			self.fertility = rand.randint(1,3)
-	def set_age(self, age):
-		self.age = age
-
-	def set_number(self, number):
-		self.number = number
-
-class Fox: 
-	def __init__(self, number, hunger):
-		self.number = number
-		self.hunger = hunger
-
-	def set_hunge(self, hunger):
-		self.hunger = hunger
-
-
-simulation = True
-firstgame = True
-rpop = []
-rpopulation = 0
-rnumber = 0
-rspeeds = []
-rabbitfood = 0
-deadrabbits = 0
-rmating = 10
-g = 0
-s = 0
-# Fox Variables
-fpop = []
-fpopulation = 0
-fnumber = 0
-day = 1
-dayrecord = {}
-year = 12
-
 
 def createrabbit(x):
 	global rnumber, rpop, rpopulation
@@ -156,23 +111,3 @@ def nextyear():
 def fixrnumbers():
 	for i in range(len(rpop)):
 		rpop[i].set_number(i)
-
-
-createrabbit(50)
-#listrabbits()
-while simulation == True:
-	genrabbitfood()
-	nextday()
-
-	if rpopulation >= 1:
-		rabbitbirth()
-		fixrnumbers()
-		if rpopulation >= 100000:
-			time.sleep(1)
-
-		day += 1
-		if day == year:
-			nextyear()
-	elif rpopulation <= 0:
-		simulation = False
-	
