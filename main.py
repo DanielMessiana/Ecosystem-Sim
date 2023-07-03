@@ -79,7 +79,8 @@ def foxeat():
 	for obj in fpop:
 		rpop.sort(key=lambda x: x.speed)
 		for obj in rpop:
-			
+			if rand.randint(1, 100) <= x.speed:
+				rpop.pop(obj.number - 1)
 
 	
 def slowestdie(deadrabbits):
