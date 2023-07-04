@@ -34,6 +34,7 @@ rspeeds = []
 rabbitfood = 0
 deadrabbits = 0
 rmating = 10
+totaloffspring = 0
 g = 0
 s = 0
 # Fox Variables

@@ -49,7 +49,7 @@ def slowestdie(deadrabbits):
 	rpop.sort(key=lambda x: x.number)
 
 def rabbitbirth():
-	global rmating, offspring
+	global rmating, offspring, totaloffspring
 	if day == rmating:
 		offspring = 0
 		for obj in rpop:
@@ -58,6 +58,8 @@ def rabbitbirth():
 		createoffspring(offspring)
 		rmating += rand.randint(18, 25)
 		# listrabbits()
+		print(" ")
+		print("There has been " + str(offspring) + " offspring.")
 
 def createoffspring(offspring):
 	global rnumber, rpopulation, rmating, rpop
@@ -93,18 +95,19 @@ def nextday():
 def nextyear():
 	global rpopulation, day, year, rpop
 	passers = 0
-	rpop.sort(key=lambda x: x.number, reverse=True)
+	fixrnumbers()
+	rpop.sort(key=lambda x: x.number)
 	for obj in rpop:
 		obj.set_age(obj.age + 1)
 		if obj.age == 9:
-			rpop.pop(int(obj.number - 1))
+			rpop.pop(int(obj.number))
 			rpopulation -= 1
 			passers += 1
 		if obj.age > 2:
 			c = obj.age * 5
 			c -= 5
 			if rand.randint(0, 100) <= c:
-				rpop.pop(int(obj.number - 1))
+				rpop.pop(int(obj.number))
 				rpopulation -= 1
 				passers += 1
 	year += 12
@@ -113,7 +116,6 @@ def nextyear():
 def fixrnumbers():
 	for i in range(len(rpop)):
 		rpop[i].set_number(i)
-
 
 def checkrabbitpop():
 	global day, simulation
