@@ -3,6 +3,7 @@ import random as rand
 import numpy as np
 import time, json
 import matplotlib.pyplot as plt
+from variables import *
 
 def createrabbit(x):
 	global rnumber, rpop, rpopulation
@@ -101,6 +102,7 @@ def nextyear():
 			passers += 1
 		if obj.age > 2:
 			c = obj.age * 5
+			c -= 5
 			if rand.randint(0, 100) <= c:
 				rpop.pop(int(obj.number - 1))
 				rpopulation -= 1
@@ -111,3 +113,26 @@ def nextyear():
 def fixrnumbers():
 	for i in range(len(rpop)):
 		rpop[i].set_number(i)
+
+
+def checkrabbitpop():
+	global day, simulation
+	if rpopulation >= 1:
+		rabbitbirth()
+		fixrnumbers()
+		if rpopulation >= 1000:
+			time.sleep(1)
+
+		day += 1
+		if day == year:
+			nextyear()
+	elif rpopulation <= 0:
+		simulation = False
+
+
+
+def main():
+	while simulation == True:
+		genrabbitfood()
+		nextday()
+		checkrabbitpop()

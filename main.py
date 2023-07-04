@@ -167,7 +167,7 @@ while simulation == True:
 	if rpopulation >= 1:
 		rabbitbirth()
 		fixrnumbers()
-		if rpopulation >= 100000:
+		if rpopulation >= 10:
 			time.sleep(1)
 
 		day += 1
