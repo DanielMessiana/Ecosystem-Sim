@@ -6,7 +6,7 @@ import time, json
 import matplotlib.pyplot as plt
 from scripts import *
 
-createrabbit(50)
-listrabbits()
+createRabbit(50)
+listRabbits()
 
 main()

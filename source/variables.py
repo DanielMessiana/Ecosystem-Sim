@@ -22,7 +22,7 @@ class Fox:
 		self.number = number
 		self.hunger = hunger
 
-	def set_hunge(self, hunger):
+	def set_hunger(self, hunger):
 		self.hunger = hunger
 
 simulation = True
@@ -41,6 +41,7 @@ s = 0
 fpop = []
 fpopulation = 0
 fnumber = 0
+lesshunger = 0
 day = 1
 dayrecord = {}
 year = 12
