@@ -14,7 +14,7 @@ def createRabbit(x):
 def createFox(x):
 	global fpop, fpopulation
 	while(x > 0):
-		fpop.append(Fox(rand.randint(1, 3)))
+		fpop.append(Fox(rand.randint(1, 2)))
 		x -= 1
 		fpopulation += 1
 
@@ -25,31 +25,33 @@ def rabbitFood():
 	if luck <= 8:
 		rabbitfood = rpopulation
 	elif luck > 8:
-		rabbitfood = rpopulation - rand.randint(5, 10)
+		rabbitfood = rpopulation - rand.randint(1, 6)
 		starvedr = rpopulation - rabbitfood
 
 def foxEat():
-	global deadrabbits, rpopulation, rpop
+	global deadrabbits, rpopulation, rpop, fpop
+	deadrabbits = 0
+	rpop.sort(key=lambda x: x.speed)
 	for fox in fpop:
-		rpop.sort(key=lambda x: x.speed)
-		if rand.randint(1, 100) > 40:
-			while fox.hunger > 0:
-				for index, rabbit in enumerate(rpop):
-					if rand.randint(1, 100) <= rabbit.speed and rabbit.age > 1:
-						rpop.pop(index)
-						deadrabbits += 1
-						rpopulation -= 1
-						fox.set_hunger(fox.hunger - 1)
-					if fox.hunger == 0:
-						break
+		if rand.randint(1, 100) <= 40:
+			for index, rabbit in enumerate(rpop):
+				if fox.hunger < 1:
+					break
+				if rand.randint(1, 100) >= rabbit.speed and rabbit.age > 1:
+					rpop.pop(index)
+					deadrabbits += 1
+					rpopulation -= 1
+					fox.set_hunger(fox.hunger - 1)
+				else:
+					continue
+
 	if deadrabbits > 0:
-		print("Foxes have eaten " + str(deadrabbits) + " rabbits!")
 		deadrabbits = 0
 	
-def slowestDie(starvedr):
-	global rpopulation, rpop
+def slowestDie():
+	global rpopulation, rpop, starvedr
 	rpop.sort(key=lambda x: x.speed)
-	while starvedr > 0:
+	while starvedr > 0 and rpop:
 		rpop.pop()
 		rpopulation -= 1
 		starvedr -= 1
@@ -62,9 +64,8 @@ def rabbitBirth():
 			if rabbit.gender == 1:
 				offspring += rabbit.fertility
 		createOffspring(offspring)
-		rmating += rand.randint(18, 25)
+		rmating += rand.randint(18, 22)
 		# listRabbits()
-		print("There has been " + str(offspring) + " offspring.")
 
 def createOffspring(offspring):
 	global rpopulation, rmating, rpop
@@ -87,20 +88,16 @@ def listRabbits():
 	plt.show()
 
 def nextDay():
-	global rpopulation, rabbitfood, starvedr, rmating, rpop
-	print(" ")
-	print("Day: " + str(day))
-	if fpopulation > 0:
-			foxEat()
+	global rpopulation, rabbitfood, starvedr, rmating, rpop, day
 	rabbitBirth()
 	rpopulation = len(rpop)
 	if starvedr > 0:
-		print("There was a food shortage!! The " + str(starvedr) + " slowest rabbits starved.")
-		slowestDie(starvedr)
-		starvedr = 0
+		slowestDie()
 	if day == year:
 		nextYear()
-	print("Rabbit Population: " + str(rpopulation))
+	if fpopulation > 0:
+		foxEat()
+	day += 1
 
 # every 12 days, 
 def nextYear():
@@ -120,25 +117,49 @@ def nextYear():
 				rpopulation -= 1
 				passers += 1
 	year += 12
-	print(str(passers) + " rabbits have died of old age.")
-
-def checkRabbitPop():
-	global day, simulation
-	if rpopulation >= 1:
-		if rpopulation >= 200:
-			time.sleep(1)
-
-		day += 1
-	elif rpopulation <= 0:
-		simulation = False
 
 def main():
+	global simulation, finalstats
+	createRabbit(50)
 	while simulation == True:
 		rabbitFood()
 		nextDay()
-		checkRabbitPop()
-		for fox in fpop:
-			if rand.randint(1, 100) < 65:
-				fox.set_hunger(fox.hunger + 1)
+		if rpopulation < 1:
+			simulation = False
+		if fpopulation > 0:
+			for fox in fpop:
+				if fox.hunger >= 2:
+					continue
+				if rand.randint(1, 100) <= 40:
+					fox.set_hunger(fox.hunger + 1)
 		if day == 15:
 			createFox(10)
+		if day == 200:
+			finalstats.append(rpopulation)
+			finalstats.append(fpopulation)
+			simulation = False
+	print(finalstats)
+	setVariables()
+
+def setVariables():
+	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, g, s, fpop, fpopulation, day, dayrecord, year, finalstats
+	simulation = True
+	firstgame = True
+	# Rabbit Variables
+	rpop = []
+	rpopulation = 0
+	rspeeds = []
+	rabbitfood = 0
+	starvedr = 0
+	deadrabbits = 0
+	rmating = 10
+	totaloffspring = 0
+	g = 0
+	s = 0
+	# Fox Variables
+	fpop = []
+	fpopulation = 0
+	day = 1
+	dayrecord = {}
+	year = 12
+	finalstats = []

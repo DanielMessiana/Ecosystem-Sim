@@ -22,6 +22,7 @@ class Fox:
 
 simulation = True
 firstgame = True
+# Rabbit Variables
 rpop = []
 rpopulation = 0
 rspeeds = []
@@ -38,3 +39,4 @@ fpopulation = 0
 day = 1
 dayrecord = {}
 year = 12
+finalstats = []

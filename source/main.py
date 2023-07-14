@@ -5,7 +5,5 @@ import time, json
 import matplotlib.pyplot as plt
 from scripts import *
 
-createRabbit(50)
-listRabbits()
-
-main()
+for i in range(5):
+	main()
