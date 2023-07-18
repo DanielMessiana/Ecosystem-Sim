@@ -5,5 +5,5 @@ import time, json
 import matplotlib.pyplot as plt
 from scripts import *
 
-for i in range(5):
+for i in range(10):
 	main()

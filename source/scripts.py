@@ -119,12 +119,15 @@ def nextYear():
 	year += 12
 
 def main():
-	global simulation, finalstats
+	global simulation, finalstats, simnumber
 	createRabbit(50)
 	while simulation == True:
 		rabbitFood()
 		nextDay()
 		if rpopulation < 1:
+			finalstats.append("Day: " + str(day))
+			finalstats.append("Rabbits: " + str(rpopulation))
+			finalstats.append("Foxes: " + str(fpopulation))
 			simulation = False
 		if fpopulation > 0:
 			for fox in fpop:
@@ -135,16 +138,18 @@ def main():
 		if day == 15:
 			createFox(10)
 		if day == 200:
-			finalstats.append(rpopulation)
-			finalstats.append(fpopulation)
+			finalstats.append("Day: " + str(day))
+			finalstats.append("Rabbits: " + str(rpopulation))
+			finalstats.append("Foxes: " + str(fpopulation))
 			simulation = False
+	print(simnumber)
 	print(finalstats)
 	setVariables()
+	simnumber += 1
 
 def setVariables():
-	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, g, s, fpop, fpopulation, day, dayrecord, year, finalstats
+	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, dayrecord, year, finalstats
 	simulation = True
-	firstgame = True
 	# Rabbit Variables
 	rpop = []
 	rpopulation = 0
@@ -154,8 +159,6 @@ def setVariables():
 	deadrabbits = 0
 	rmating = 10
 	totaloffspring = 0
-	g = 0
-	s = 0
 	# Fox Variables
 	fpop = []
 	fpopulation = 0
