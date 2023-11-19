@@ -2,6 +2,7 @@
 import numpy as np
 import random as rand
 import pandas as pd
+import seaborn as sns
 import time, json, sys
 import matplotlib.pyplot as plt
 from variables import *
@@ -50,15 +51,17 @@ def foxEat():
 
 	if deadrabbits > 0:
 		deadrabbits = 0
-	
+
+"""
 def slowestDie():
 	global rpopulation, rpop, starvedr
-	rpop = rpop[rpop[0].argsort()]
+	sorted_indices = rpop[1].argsort()
+	rpop = rpop[:, sorted_indices]
 	while starvedr > 0:
 		rpop = np.delete(rpop, 0)
 		rpopulation -= 1
 		starvedr -= 1
-
+"""
 # Old reproduction functions
 """
 def rabbitBirth():
@@ -88,8 +91,8 @@ def nextDay():
 	global rpopulation, rabbitfood, starvedr, rmating, rpop, day
 	#rabbitBirth()
 	rpopulation = len(rpop)
-	if starvedr > 0:
-		slowestDie()
+	#if starvedr > 0:
+		#slowestDie()
 	if day == year:
 		nextYear()
 	if fpopulation > 0:
@@ -100,18 +103,13 @@ def nextDay():
 def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
 	if len(rpop):
-		print(rpop.shape)
 		rpop[:, 2] += 1
-		for index, row in enumerate(rpop):	
-			if row[2] == 7:
-				rpop = np.delete(rpop, index, axis=0)
-				rpopulation -= 1
-				break
-			if row[2] > 2:
-				c = row[2] * 5
-				if rand.randint(0, 100) <= c:
-					rpop = np.delete(rpop, index, axis=0)
-					rpopulation -= 1
+
+		mask = (rpop[:, 2] == 7) | ((rpop[:, 2] > 2) & (np.random.randint(0, 100, size=len(rpop)) <= rpop[:, 2] * 5))
+
+		rpop = rpop[~mask]
+
+		rpopulation -= np.sum(mask)
 	else:
 		simulation = False
 	if len(fpop):
@@ -144,13 +142,15 @@ def main():
 				if rand.randint(1, 100) <= 40:
 					fox.set_hunger(fox.hunger + 1)
 		if day == 25:
-			createFox(5)
+			pass
+			#createFox(5)
 		if day == maxday:
 			simulation = False
 	#print(simnumber)
-	rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
+	print(rpop)
+	rDF = pd.DataFrame(rpop)
 
-	setVariables()
+	#setVariables()
 	simnumber += 1
 
 
@@ -172,4 +172,5 @@ def setVariables():
 	year = 12
 
 def showPlots():
-	print(rDF)
+	sns.pairplot(rDF)
+	plt.show()
