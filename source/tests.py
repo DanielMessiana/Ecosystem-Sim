@@ -1,6 +1,7 @@
 # Eco System Simulator
 import numpy as np
 import random as rand
+import pandas as pd
 import time, json, sys
 import matplotlib.pyplot as plt
 
@@ -44,4 +45,5 @@ def nextYear():
 
 print(rpop[:, 2])
 print(rpop)
-nextYear()
+rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
+print(rDF)

@@ -147,13 +147,12 @@ def main():
 		if day == maxday:
 			simulation = False
 	#print(simnumber)
-	print(rpop)
-	rDF = pd.DataFrame(rpop)
+	print(rpop.shape)
+	rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
+	print(rDF)
 
 	#setVariables()
 	simnumber += 1
-
-
 
 def setVariables():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year
