@@ -1,7 +1,7 @@
 # functions
 import numpy as np
 import random as rand
-import time, json, pygame, sys
+import time, json, sys
 import matplotlib.pyplot as plt
 from variables import *
 
@@ -51,12 +51,14 @@ def foxEat():
 	
 def slowestDie():
 	global rpopulation, rpop, starvedr
-	rpop.sort(key=lambda x: x.speed)
+	rpop.sort(key=lambda x: x.rarray[:,1])
 	while starvedr > 0 and rpop:
 		rpop.pop()
 		rpopulation -= 1
 		starvedr -= 1
 
+# Old reproduction functions
+"""
 def rabbitBirth():
 	global rmating, offspring, totaloffspring
 	if day == rmating:
@@ -66,7 +68,9 @@ def rabbitBirth():
 				offspring += rabbit.fertility
 		createOffspring(offspring)
 		rmating += rand.randint(18, 32)
+"""
 
+"""
 def createOffspring(offspring):
 	global rpopulation, rmating, rpop
 	while offspring > 0:
@@ -76,10 +80,11 @@ def createOffspring(offspring):
 				rpop.append(Rabbit(rand.randint(0, 1), s, 0))
 				offspring -= 1
 				rpopulation += 1
+"""
 
 def nextDay():
 	global rpopulation, rabbitfood, starvedr, rmating, rpop, day
-	rabbitBirth()
+	#rabbitBirth()
 	rpopulation = len(rpop)
 	if starvedr > 0:
 		slowestDie()
@@ -143,7 +148,7 @@ def main():
 			simulation = False
 	#print(simnumber)
 	for rabbit in rpop:
-    	rDF = rDF.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
+		rDF = rDF.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
 	setVariables()
 	simnumber += 1
 

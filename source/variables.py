@@ -2,7 +2,7 @@
 import numpy as np
 import random as rand
 import pandas as pd
-import time, json, pygame, sys
+import time, json, sys
 
 class Rabbit:
 	def __init__(self, gender, speed, age):
@@ -51,5 +51,3 @@ simnumber = 1
 # How many days the simulation should stop at
 maxday = 100
 simulationAmount = 1
-for rabbit in rabbit_objects:
-    df = df.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
