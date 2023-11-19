@@ -12,8 +12,12 @@ class Rabbit:
 		# Male Rabbits have fertiliy 0
 		if gender == 0:
 			self.rarray = np.array([[gender], [speed], [age], [0]])
+
 	def set_age(self, age):
 		self.rarray[2] = age
+
+	def get_arr(self):
+		return self.rarray
 
 class Fox: 
 	def __init__(self, hunger, age):
@@ -29,8 +33,7 @@ class Fox:
 simulation = True
 
 # Rabbit Variables
-rpop = []
-rDF = pd.DataFrame(columns=['gender', 'speed', 'age', 'fertility'])
+rpop = np.empty((0,4), int)
 rpopulation = 0
 rspeeds = []
 rabbitfood = 0
@@ -49,4 +52,3 @@ year = 12
 simnumber = 1
 # How many days the simulation should stop at
 maxday = 100
-simulationAmount = 1

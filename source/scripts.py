@@ -1,6 +1,7 @@
 # functions
 import numpy as np
 import random as rand
+import pandas as pd
 import time, json, sys
 import matplotlib.pyplot as plt
 from variables import *
@@ -8,7 +9,8 @@ from variables import *
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		rpop.append(Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5)))
+		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
+		rpop = np.append(rpop, n.get_arr().T, axis=0)
 		x -= 1
 		rpopulation += 1
 
@@ -51,9 +53,9 @@ def foxEat():
 	
 def slowestDie():
 	global rpopulation, rpop, starvedr
-	rpop.sort(key=lambda x: x.rarray[1])
-	while starvedr > 0 and rpop:
-		rpop.pop()
+	rpop = rpop[rpop[0].argsort()]
+	while starvedr > 0:
+		rpop = np.delete(rpop, 0)
 		rpopulation -= 1
 		starvedr -= 1
 
@@ -98,16 +100,17 @@ def nextDay():
 def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
 	if len(rpop):
-		for index, rabbit in enumerate(rpop):
-			rabbit.set_age(rabbit.rarray[2] + 1)
-			if rabbit.rarray[2] == 7:
-				rpop.pop(index)
+		print(rpop.shape)
+		rpop[:, 2] += 1
+		for index, row in enumerate(rpop):	
+			if row[2] == 7:
+				rpop = np.delete(rpop, index, axis=0)
 				rpopulation -= 1
 				break
-			if rabbit.rarray[2] > 2:
-				c = rabbit.rarray[2] * 5
+			if row[2] > 2:
+				c = row[2] * 5
 				if rand.randint(0, 100) <= c:
-					rpop.pop(index)
+					rpop = np.delete(rpop, index, axis=0)
 					rpopulation -= 1
 	else:
 		simulation = False
@@ -127,13 +130,12 @@ def nextYear():
 	year += 12
 
 def main():
-	global simulation, finalstats, simnumber
+	global simulation, finalstats, simnumber, rDF
 	createRabbit(50)
 	while simulation == True:
 		rabbitFood()
 		nextDay()
 		if rpopulation < 1:
-			finalstats.update({simnumber : rpopulation})
 			simulation = False
 		if fpopulation > 0:
 			for fox in fpop:
@@ -144,13 +146,13 @@ def main():
 		if day == 25:
 			createFox(5)
 		if day == maxday:
-			finalstats.update({simnumber : rpopulation})
 			simulation = False
 	#print(simnumber)
-	for rabbit in rpop:
-		rDF = rDF.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
+	rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
+
 	setVariables()
 	simnumber += 1
+
 
 
 def setVariables():
@@ -170,16 +172,4 @@ def setVariables():
 	year = 12
 
 def showPlots():
-	sims = list(finalstats.keys())
-	allpops = list(finalstats.values())
-	allpops.sort()
-
-	fig = plt.figure(figsize = (10, 5))
-
-	plt.bar(sims, allpops, color ='brown',
-        width = 0.4)
-
-	plt.xlabel("Simulation Number")
-	plt.ylabel("No. of rabbits")
-	plt.title("All simulations of " + str(maxday) + " days")
-	plt.show()
+	print(rDF)
