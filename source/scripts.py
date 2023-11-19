@@ -142,8 +142,11 @@ def main():
 			finalstats.update({simnumber : rpopulation})
 			simulation = False
 	#print(simnumber)
+	for rabbit in rpop:
+    	rDF = rDF.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
 	setVariables()
 	simnumber += 1
+
 
 def setVariables():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year

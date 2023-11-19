@@ -1,16 +1,17 @@
 # variables
 import numpy as np
 import random as rand
+import pandas as pd
 import time, json, pygame, sys
 
 class Rabbit:
 	def __init__(self, gender, speed, age):
-		self.gender = gender
-		self.speed = speed
-		self.age = age
-		# Female
+		# Female Rabbits have fertility 1-5 at birth
 		if gender == 1:
-			self.fertility = rand.randint(1,5)
+			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)]])
+		# Male Rabbits have fertiliy 0
+		if gender == 0:
+			self.rarray = np.array([[gender], [speed], [age], [0]])
 	def set_age(self, age):
 		self.age = age
 
@@ -29,6 +30,7 @@ simulation = True
 
 # Rabbit Variables
 rpop = []
+rDF = pd.DataFrame(columns=['gender', 'speed', 'age', 'fertility'])
 rpopulation = 0
 rspeeds = []
 rabbitfood = 0
@@ -48,3 +50,6 @@ finalstats = {}
 simnumber = 1
 # How many days the simulation should stop at
 maxday = 100
+simulationAmount = 1
+for rabbit in rabbit_objects:
+    df = df.append({'gender': rabbit.gender, 'speed': rabbit.speed, 'age': rabbit.age, 'fertility': getattr(rabbit, 'fertility', None)}, ignore_index=True)
