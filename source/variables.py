@@ -13,7 +13,7 @@ class Rabbit:
 		if gender == 0:
 			self.rarray = np.array([[gender], [speed], [age], [0]])
 	def set_age(self, age):
-		self.age = age
+		self.rarray[2] = age
 
 class Fox: 
 	def __init__(self, hunger, age):
@@ -46,7 +46,6 @@ fpopulation = 0
 # Simulator Variables
 day = 1
 year = 12
-finalstats = {}
 simnumber = 1
 # How many days the simulation should stop at
 maxday = 100

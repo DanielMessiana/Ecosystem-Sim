@@ -32,13 +32,13 @@ def rabbitFood():
 def foxEat():
 	global deadrabbits, rpopulation, rpop, fpop
 	deadrabbits = 0
-	rpop.sort(key=lambda x: x.speed)
+	rpop.sort(key=lambda x: x.rarray[1])
 	for fox in fpop:
 		if rand.randint(1, 100) <= 40:
 			for index, rabbit in enumerate(rpop):
 				if fox.hunger < 1:
 					break
-				if rand.randint(1, 100) >= rabbit.speed and rabbit.age > 1:
+				if rand.randint(1, 100) >= rabbit.rarray[1] and rabbit.rarray[2] > 1:
 					rpop.pop(index)
 					deadrabbits += 1
 					rpopulation -= 1
@@ -51,7 +51,7 @@ def foxEat():
 	
 def slowestDie():
 	global rpopulation, rpop, starvedr
-	rpop.sort(key=lambda x: x.rarray[:,1])
+	rpop.sort(key=lambda x: x.rarray[1])
 	while starvedr > 0 and rpop:
 		rpop.pop()
 		rpopulation -= 1
@@ -99,13 +99,13 @@ def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
 	if len(rpop):
 		for index, rabbit in enumerate(rpop):
-			rabbit.set_age(rabbit.age + 1)
-			if rabbit.age == 7:
+			rabbit.set_age(rabbit.rarray[2] + 1)
+			if rabbit.rarray[2] == 7:
 				rpop.pop(index)
 				rpopulation -= 1
 				break
-			if rabbit.age > 2:
-				c = rabbit.age * 5
+			if rabbit.rarray[2] > 2:
+				c = rabbit.rarray[2] * 5
 				if rand.randint(0, 100) <= c:
 					rpop.pop(index)
 					rpopulation -= 1
