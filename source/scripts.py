@@ -87,6 +87,14 @@ def createOffspring(offspring):
 				rpopulation += 1
 """
 
+def reproduce(rpop):
+	for index, row in enumerate(rpop):
+		# If the rabbit is male, it checks the next rabbit
+		if row[3] == 0 or row[2] <= 1:
+			continue
+
+
+
 def nextDay():
 	global rpopulation, rabbitfood, starvedr, rmating, rpop, day
 	#rabbitBirth()
