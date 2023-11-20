@@ -137,21 +137,11 @@ def createFox(x):
 def foxEat():
 	global deadrabbits, rpopulation, rpop, fpop
 	deadrabbits = 0
-	rpop.sort(key=lambda x: x.rarray[1])
+
 	for fox in fpop:
-		if rand.randint(1, 100) <= 40:
-			for index, rabbit in enumerate(rpop):
-				if fox.hunger < 1:
-					break
-				if rand.randint(1, 100) >= rabbit.rarray[1] and rabbit.rarray[2] > 1:
-					rpop.pop(index)
-					deadrabbits += 1
-					rpopulation -= 1
-					fox.set_hunger(fox.hunger - 1)
-				else:
-					continue
-	if deadrabbits > 0:
-		deadrabbits = 0
+		if rand.randint(1, 100) < 40:
+			rabbit_speeds = rpop[:, 1]
+
 
 # Simulation Functions
 # --------------------
@@ -179,9 +169,9 @@ def nextYear():
 			if rabbit[2] == 8:
 				rpassed.append(i)
 				rpopulation -= 1
-			elif rabbit[2] > 2 and rabbit[2] != 7:
-				c = rabbit[2] * 5
-				if rand.randint(0, 100) >= c:
+			elif rabbit[2] > 2:
+				c = rabbit[2] * 2
+				if rand.randint(1, 100) >= c:
 					rpassed.append(i)
 					rpopulation -= 1
 		rpop = np.delete(rpop, rpassed, axis=0)
@@ -195,16 +185,16 @@ def nextYear():
 				fpassed.append(i)
 				fpopulation -= 1
 			elif fox[2] > 2 and fox[2] != 7:
-				c = rabbit[2] * 5
+				c = rabbit[2] * 10
 				if rand.randint(0, 100) >= c:
 					fpassed.append(i)
 					fpopulation -= 1
 		fpop = np.delete(fpop, fpassed, axis=0)
-	year += 12
+	year += 365
 
 def main(maxday):
 	global simulation, finalstats, simnumber, rDF, rpop, rabbit_data
-	createRabbit(50)
+	createRabbit(100)
 	while simulation == True:
 		rabbitFood()
 		nextDay()
@@ -227,8 +217,8 @@ def main(maxday):
 	simnumber += 1
 
 def simulation():
-	sims = 100
-	maxday = 100
+	sims = 1
+	maxday = 1300
 
 	for i in range(sims):
 		main(maxday)
@@ -238,7 +228,7 @@ def simulation():
 	print(rDF)
 	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
-	
+
 
 simulation()
 
