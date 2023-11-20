@@ -52,41 +52,6 @@ def foxEat():
 	if deadrabbits > 0:
 		deadrabbits = 0
 
-"""
-def slowestDie():
-	global rpopulation, rpop, starvedr
-	sorted_indices = rpop[1].argsort()
-	rpop = rpop[:, sorted_indices]
-	while starvedr > 0:
-		rpop = np.delete(rpop, 0)
-		rpopulation -= 1
-		starvedr -= 1
-"""
-# Old reproduction functions
-"""
-def rabbitBirth():
-	global rmating, offspring, totaloffspring
-	if day == rmating:
-		offspring = 0
-		for rabbit in rpop:
-			if rabbit.gender == 1:
-				offspring += rabbit.fertility
-		createOffspring(offspring)
-		rmating += rand.randint(18, 32)
-"""
-
-"""
-def createOffspring(offspring):
-	global rpopulation, rmating, rpop
-	while offspring > 0:
-		for rabbit in rpop:
-			if rabbit.age >= 1 and rabbit.age <= 4 and rabbit.gender == 0:
-				s = rabbit.speed + rand.randint(-3, 3)
-				rpop.append(Rabbit(rand.randint(0, 1), s, 0))
-				offspring -= 1
-				rpopulation += 1
-"""
-
 def reproduce(rpop):
 	global rpopulation
 	offspring = 0
