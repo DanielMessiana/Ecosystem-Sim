@@ -48,6 +48,7 @@ simnumber = 1
 def resetVar():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year
 	simulation = True
+
 	rpop = np.empty((0,4), int)
 	rpopulation = 0
 	rspeeds = []
@@ -56,10 +57,15 @@ def resetVar():
 	deadrabbits = 0
 	rmating = 10
 	totaloffspring = 0
-	fpop = []
+
+	fpop = np.empty((0,2), int)
 	fpopulation = 0
+
 	day = 1
 	year = 12
+
+def sigmoid(x):
+	return np.exp(x)/1 + np.exp(x)
 
 # Rabbit Functions
 # ----------------
@@ -100,14 +106,21 @@ def reproduce(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if rabbit[3] == 0 or rabbit[2] <= 1:
 			continue
-		if rand.randint(1, 10) >= rabbit[3]+2:
-			gene1 = rabbit[1]
-			gene2 = rand.choice(rpop[:,1])
-			new_speed = ((gene1 + gene2)/2)+rand.randint(-2, 2)
+		if rand.randint(1, 10) >= rabbit[3]+3 and rabbit[1] >= rand.randint(1, 100):
+			
+			i = rand.randint(1,5)
+			while i > 0:
+				gene1 = rabbit[1]
+				gene2 = rand.choice(rpop[:,1])
+				new_speed = ((gene1 + gene2)/2)+rand.randint(-2, 2)
+				if rand.randint(1,100) < 3:
+					new_speed += rand.randint(-20, 20)
 
-			g = rand.randint(0, 1)
-			o = Rabbit(g, new_speed, 0)
-			new_rabbits = np.vstack([new_rabbits, o.get_arr().T])
+				g = rand.randint(0, 1)
+
+				o = Rabbit(g, new_speed, 0)
+				new_rabbits = np.vstack([new_rabbits, o.get_arr().T])
+				i -= 1
 			rpopulation += 1
 	rpop = np.vstack([rpop, new_rabbits])
 
@@ -169,7 +182,7 @@ def nextYear():
 			elif rabbit[2] > 2 and rabbit[2] != 7:
 				c = rabbit[2] * 5
 				if rand.randint(0, 100) >= c:
-					prassed.append(i)
+					rpassed.append(i)
 					rpopulation -= 1
 		rpop = np.delete(rpop, rpassed, axis=0)
 	else:
@@ -209,23 +222,23 @@ def main(maxday):
 		if day == maxday:
 			simulation = False
 	#print(simnumber)
-	print(f"The shape of the rabbit data is: {rabbit_data.shape}")
 	rabbit_data = np.vstack([rabbit_data, rpop])
 	resetVar()
 	simnumber += 1
 
 def simulation():
-	sims = 50
-	maxday = 50
+	sims = 100
+	maxday = 100
 
 	for i in range(sims):
 		main(maxday)
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility'])
 
-	plt.plot(rDF['Speed'], rDF['Age'], 'ok')
-	plt.show()
+	print(rDF)
+	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
+	
 
 simulation()
 
