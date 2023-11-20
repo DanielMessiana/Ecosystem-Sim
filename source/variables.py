@@ -14,22 +14,15 @@ class Rabbit:
 		if gender == 0:
 			self.rarray = np.array([[gender], [speed], [age], [0]])
 
-	def set_age(self, age):
-		self.rarray[2] = age
-
 	def get_arr(self):
 		return self.rarray
 
 class Fox: 
 	def __init__(self, hunger, age):
-		self.hunger = hunger
-		self.age = age
+		self.farray = np.array([[hunger], [age]])
 
 	def set_hunger(self, hunger):
-		self.hunger = hunger
-
-	def set_age(self, age):
-		self.age = age
+		self.farray[0] = hunger
 
 simulation = True
 
@@ -37,15 +30,13 @@ simulation = True
 rpop = np.empty((0,4), int)
 rabbit_data = np.empty((0,4), int)
 rpopulation = 0
-rspeeds = []
 rabbitfood = 0
 starvedr = 0
 deadrabbits = 0
 rmating = 10
-totaloffspring = 0
 
 # Fox Variables
-fpop = []
+fpop = np.empty((0,2), int)
 fpopulation = 0
 
 # Simulator Variables

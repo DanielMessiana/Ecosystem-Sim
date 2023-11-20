@@ -98,32 +98,32 @@ def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
 	if rpop.shape[0] > 0:
 		rpop[:, 2] += 1
-		passed = []
+		rpassed = []
 		for i, rabbit in enumerate(rpop):
 			if rabbit[2] == 8:
-				passed.append(i)
+				rpassed.append(i)
 				rpopulation -= 1
 			elif rabbit[2] > 2 and rabbit[2] != 7:
 				c = rabbit[2] * 5
 				if rand.randint(0, 100) >= c:
-					passed.append(i)
+					prassed.append(i)
 					rpopulation -= 1
-		rpop = np.delete(rpop, passed, axis=0)
+		rpop = np.delete(rpop, rpassed, axis=0)
 	else:
 		simulation = False
-	if len(fpop):
-		for index, fox in enumerate(fpop):
-			fox.set_age(fox.age + 1)
-			if fox.age == 6:
-				fpop.pop(index)
+	if fpop.shape[0] > 0:
+		fpop[:, 2] += 1
+		fpassed = []
+		for i, fox in enumerate(fox):
+			if fox[2] == 8:
+				fpassed.append(i)
 				fpopulation -= 1
-				break
-			if fox.age > 2:
-				c = fox.age * 10
-				c -= 5
-				if rand.randint(0, 100) <= c:
-					fpop.pop(index)
+			elif fox[2] > 2 and fox[2] != 7:
+				c = rabbit[2] * 5
+				if rand.randint(0, 100) >= c:
+					fpassed.append(i)
 					fpopulation -= 1
+		fpop = np.delete(fpop, fpassed, axis=0)
 	year += 12
 
 def main(maxday):
