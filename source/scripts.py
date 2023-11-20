@@ -88,11 +88,26 @@ def createOffspring(offspring):
 """
 
 def reproduce(rpop):
+	global rpopulation
+	offspring = 0
 	for index, row in enumerate(rpop):
-		# If the rabbit is male, it checks the next rabbit
+		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if row[3] == 0 or row[2] <= 1:
 			continue
 
+		if rand.randint(1, 10) >= row[3]:
+			gene1 = row[1]
+			gene2 = rand.choice(rpop[:,1])
+
+			g = rand.randint(0, 1)
+			if g == 0:
+				o = Rabbit(0, ((gene1 + gene2)/2)+rand.randint(-2, 2), 0)
+				rpop = np.append(rpop, o.get_arr().T, axis=0)
+				rpopulation += 1
+			elif g == 1:
+				o = Rabbit(1, ((gene1 + gene2)/2)+rand.randint(-2, 2), 0)
+				rpop = np.append(rpop, o.get_arr().T, axis=0)
+				rpopulation += 1
 
 
 def nextDay():
@@ -101,6 +116,7 @@ def nextDay():
 	rpopulation = len(rpop)
 	#if starvedr > 0:
 		#slowestDie()
+	reproduce(rpop)
 	if day == year:
 		nextYear()
 	if fpopulation > 0:
