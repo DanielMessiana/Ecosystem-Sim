@@ -11,7 +11,7 @@ def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
 		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
-		rpop = np.append(rpop, n.get_arr().T, axis=0)
+		rpop = np.vstack([rpop, n.get_arr().T])
 		x -= 1
 		rpopulation += 1
 
@@ -31,6 +31,17 @@ def rabbitFood():
 	elif luck > 8:
 		rabbitfood = rpopulation - rand.randint(1, 6)
 		starvedr = rpopulation - rabbitfood
+
+"""
+def slowestDie():
+	global rpopulation, rpop, starvedr
+	sorted_indices = rpop[1].argsort()
+	rpop = rpop[:, sorted_indices]
+	while starvedr > 0:
+		rpop = np.delete(rpop, 0)
+		rpopulation -= 1
+		starvedr -= 1
+"""
 
 def foxEat():
 	global deadrabbits, rpopulation, rpop, fpop
@@ -54,25 +65,22 @@ def foxEat():
 
 def reproduce(rpop):
 	global rpopulation
-	offspring = 0
-	for index, row in enumerate(rpop):
+	new_rabbits = np.empty((0, 4), int)
+	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
-		if row[3] == 0 or row[2] <= 1:
+		if rabbit[3] == 0 or rabbit[2] <= 1:
 			continue
-
-		if rand.randint(1, 10) >= row[3]:
-			gene1 = row[1]
+		if rand.randint(1, 10) >= rabbit[3]:
+			gene1 = rabbit[1]
 			gene2 = rand.choice(rpop[:,1])
+			new_speed = ((gene1 + gene2)/2)+rand.randint(-2, 2)
 
 			g = rand.randint(0, 1)
-			if g == 0:
-				o = Rabbit(0, ((gene1 + gene2)/2)+rand.randint(-2, 2), 0)
-				rpop = np.append(rpop, o.get_arr().T, axis=0)
-				rpopulation += 1
-			elif g == 1:
-				o = Rabbit(1, ((gene1 + gene2)/2)+rand.randint(-2, 2), 0)
-				rpop = np.append(rpop, o.get_arr().T, axis=0)
-				rpopulation += 1
+			o = Rabbit(g, new_speed, 0)
+			new_rabbits = np.vstack([new_rabbits, o.get_arr().T])
+			rpopulation += 1
+	print(new_rabbits.shape)
+	rpop = np.vstack([rpop, np.array(new_rabbits)])
 
 
 def nextDay():
@@ -93,12 +101,17 @@ def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
 	if len(rpop):
 		rpop[:, 2] += 1
-
-		mask = (rpop[:, 2] == 7) | ((rpop[:, 2] > 2) & (np.random.randint(0, 100, size=len(rpop)) <= rpop[:, 2] * 5))
-
-		rpop = rpop[~mask]
-
-		rpopulation -= np.sum(mask)
+		passed = []
+		for i, rabbit in enumerate(rpop):
+			if rabbit[2] == 7:
+				passed.append(i)
+				rpopulation -= 1
+			elif rabbit[2] > 2 and rabbit[2] != 7:
+				c = rabbit[2] * 5
+				if rand.randint(0, 100) <= c:
+					passed.append(i)
+					rpopulation -= 1
+		rpop = np.delete(rpop, passed, axis=0)
 	else:
 		simulation = False
 	if len(fpop):
@@ -117,7 +130,7 @@ def nextYear():
 	year += 12
 
 def main():
-	global simulation, finalstats, simnumber, rDF
+	global simulation, finalstats, simnumber, rDF, rpop
 	createRabbit(50)
 	while simulation == True:
 		rabbitFood()
@@ -136,17 +149,14 @@ def main():
 		if day == maxday:
 			simulation = False
 	#print(simnumber)
-	print(rpop.shape)
-	rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
-	print(rDF)
-
-	#setVariables()
+	saveData(rpop)
+	setVariables()
 	simnumber += 1
 
 def setVariables():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year
 	simulation = True
-	rpop = []
+	rpop = np.empty((0,4), int)
 	rpopulation = 0
 	rspeeds = []
 	rabbitfood = 0
@@ -159,6 +169,13 @@ def setVariables():
 	day = 1
 	year = 12
 
-def showPlots():
+def saveData(rpop):
+	global rabbit_data
+	rabbit_data = np.append(rabbit_data, rpop)
+	
+
+
+def plots(r):
+	rDF = pd.DataFrame(r, columns=['Gender', 'Speed', 'Age', 'Fertility'])
 	sns.pairplot(rDF)
 	plt.show()

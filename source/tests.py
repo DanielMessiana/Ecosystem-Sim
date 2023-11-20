@@ -24,13 +24,13 @@ class Rabbit:
 
 rpop = np.empty((0,4), int) 
 n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), 6)
-rpop = np.append(rpop, n.get_arr().T, axis=0)
+rpop = np.vstack([rpop, n.get_arr().T])
 n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
-rpop = np.append(rpop, n.get_arr().T, axis=0)
+rpop = np.vstack([rpop, n.get_arr().T])
 n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
-rpop = np.append(rpop, n.get_arr().T, axis=0)
+rpop = np.vstack([rpop, n.get_arr().T])
 n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
-rpop = np.append(rpop, n.get_arr().T, axis=0)
+rpop = np.vstack([rpop, n.get_arr().T])
 
 def nextYear():
 	global rpopulation, year, rpop, fpop, fpopulation, simulation
@@ -45,5 +45,5 @@ def nextYear():
 
 print(rpop[:, 2])
 print(rpop)
-rDF = pd.DataFrame(rpop, columns=['Gender', 'Speed', 'Age', 'Fertility'])
-print(rDF)
+rpop = np.delete(rpop, 1, axis=0)
+print(rpop.shape)

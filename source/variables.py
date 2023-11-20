@@ -35,6 +35,7 @@ simulation = True
 
 # Rabbit Variables
 rpop = np.empty((0,4), int)
+rabbit_data = np.empty((0,4), int)
 rpopulation = 0
 rspeeds = []
 rabbitfood = 0
@@ -52,4 +53,4 @@ day = 1
 year = 12
 simnumber = 1
 # How many days the simulation should stop at
-maxday = 100
+maxday = 50
