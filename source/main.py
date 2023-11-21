@@ -78,27 +78,6 @@ def createRabbit(x):
 		n.add_to_pop()
 		x -= 1
 
-# generates the rabbits food for the day
-def rabbitFood():
-	global rpopulation, rabbitfood, starvedr
-	luck = rand.randint(1, 9)
-	if luck <= 8:
-		rabbitfood = rpopulation
-	elif luck > 8:
-		rabbitfood = rpopulation - rand.randint(1, 6)
-		starvedr = rpopulation - rabbitfood
-
-"""
-def slowestDie():
-	global rpopulation, rpop, starvedr
-	sorted_indices = rpop[1].argsort()
-	rpop = rpop[:, sorted_indices]
-	while starvedr > 0:
-		rpop = np.delete(rpop, 0)
-		rpopulation -= 1
-		starvedr -= 1
-"""
-
 def reproduce():
 	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
@@ -142,10 +121,9 @@ def foxEat():
 # Simulation Functions
 # --------------------
 
+# every day
 def nextDay():
 	global day
-	#if starvedr > 0:
-		#slowestDie()
 	#reproduce()
 	if day == year:
 		nextYear()
@@ -153,7 +131,7 @@ def nextDay():
 		foxEat()
 	day += 1
 
-# every 365 days, 
+# every 365 days
 def nextYear():
 	global year, rpopulation, rpop, fpop, fpopulation, simulation
 
