@@ -7,13 +7,14 @@ import time, json, sys
 import matplotlib.pyplot as plt
 
 class Rabbit:
-	def __init__(self, gender, speed, age):
+	def __init__(self, gender, speed, age, simnumber):
 		# Female Rabbits have fertility 1-5 at birth
 		if gender == 1:
-			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)]])
+			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)], [simnumber]])
 		# Male Rabbits have fertiliy 0
 		if gender == 0:
-			self.rarray = np.array([[gender], [speed], [age], [0]])
+			self.rarray = np.array([[gender], [speed], [age], [0], [simnumber]])
+
 
 	def get_arr(self):
 		return self.rarray
@@ -28,8 +29,8 @@ class Fox:
 simulation = True
 
 # Rabbit Variables
-rpop = np.empty((0,4), int)
-rabbit_data = np.empty((0,4), int)
+rpop = np.empty((0,5), int)
+rabbit_data = np.empty((0,5), int)
 rpopulation = 0
 rabbitfood = 0
 starvedr = 0
@@ -42,14 +43,15 @@ fpopulation = 0
 
 # Simulator Variables
 day = 1
-year = 12
+year = 365
 simnumber = 1
 
 def resetVar():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year
 	simulation = True
-
-	rpop = np.empty((0,4), int)
+	print(rpop)
+	rpop = np.empty((0,5), int)
+	print(rpop)
 	rpopulation = 0
 	rspeeds = []
 	rabbitfood = 0
@@ -62,7 +64,7 @@ def resetVar():
 	fpopulation = 0
 
 	day = 1
-	year = 12
+	year = 365
 
 def sigmoid(x):
 	return np.exp(x)/1 + np.exp(x)
@@ -73,7 +75,7 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5))
+		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
 		rpop = np.vstack([rpop, n.get_arr().T])
 		x -= 1
 		rpopulation += 1
@@ -99,9 +101,9 @@ def slowestDie():
 		starvedr -= 1
 """
 
-def reproduce(rpop):
+def reproduce(rpop, simnumber):
 	global rpopulation
-	new_rabbits = np.empty((0, 4), int)
+	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if rabbit[3] == 0 or rabbit[2] <= 1:
@@ -118,7 +120,7 @@ def reproduce(rpop):
 
 				g = rand.randint(0, 1)
 
-				o = Rabbit(g, new_speed, 0)
+				o = Rabbit(g, new_speed, 0, simnumber)
 				new_rabbits = np.vstack([new_rabbits, o.get_arr().T])
 				i -= 1
 			rpopulation += 1
@@ -152,7 +154,7 @@ def nextDay():
 	rpopulation = len(rpop)
 	#if starvedr > 0:
 		#slowestDie()
-	reproduce(rpop)
+	reproduce(rpop, simnumber)
 	if day == year:
 		nextYear()
 	if fpopulation > 0:
@@ -194,7 +196,7 @@ def nextYear():
 
 def main(maxday):
 	global simulation, finalstats, simnumber, rDF, rpop, rabbit_data
-	createRabbit(100)
+	createRabbit(150)
 	while simulation == True:
 		rabbitFood()
 		nextDay()
@@ -211,19 +213,19 @@ def main(maxday):
 			#createFox(5)
 		if day == maxday:
 			simulation = False
-	#print(simnumber)
 	rabbit_data = np.vstack([rabbit_data, rpop])
 	resetVar()
 	simnumber += 1
 
 def simulation():
-	sims = 1
+	sims = 5
 	maxday = 1300
-
-	for i in range(sims):
+	
+	while sims > 0:
 		main(maxday)
+		sims -= 1
 
-	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility'])
+	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
 	print(rDF)
 	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
