@@ -24,15 +24,19 @@ class Rabbit:
 
 
 	def get_arr(self):
-		return self.rarray
+		return self.rarray.T
+
+	def add_to_pop(self):
+		global rpop, rpopulation
+		rpop = np.vstack([rpop, self.rarray.T]) 
+		rpopulation += 1
 
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
 		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
-		rpop = np.vstack([rpop, n.get_arr().T])
+		n.add_to_pop()
 		x -= 1
-		rpopulation += 1
 
 def resetVar():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
@@ -53,11 +57,3 @@ def resetVar():
 	year = 365
 	simnumber += 1
 
-variable1 = 8
-def change_x():
-	global variable1
-	variable1 = 7
-
-change_x()
-
-print(variable1)

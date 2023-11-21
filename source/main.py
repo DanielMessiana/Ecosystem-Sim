@@ -3,8 +3,11 @@ import numpy as np
 import random as rand
 import pandas as pd
 import seaborn as sns
-import time, json, sys
+import time, json, sys, os
 import matplotlib.pyplot as plt
+
+# Rabbit Variables
+# ----------------
 
 class Rabbit:
 	def __init__(self, gender, speed, age, simnumber):
@@ -24,6 +27,13 @@ class Rabbit:
 		rpop = np.vstack([rpop, self.rarray.T]) 
 		rpopulation += 1
 
+rpop = np.empty((0,5), int)
+rabbit_data = np.empty((0,5), int)
+rpopulation = 0
+
+# Fox Variables
+# ------------
+
 class Fox: 
 	def __init__(self, hunger, age):
 		self.farray = np.array([[hunger], [age]])
@@ -31,18 +41,13 @@ class Fox:
 	def set_hunger(self, hunger):
 		self.farray[0] = hunger
 
-simulation = True
 
-# Rabbit Variables
-rpop = np.empty((0,5), int)
-rabbit_data = np.empty((0,5), int)
-rpopulation = 0
-
-# Fox Variables
 fpop = np.empty((0,2), int)
 fpopulation = 0
 
-# Simulator Variables
+# Simulator Variables and Functions
+simulation = True
+clear = lambda: os.system('clear')
 day = 1
 year = 365
 simnumber = 1
@@ -95,13 +100,12 @@ def slowestDie():
 """
 
 def reproduce():
-	global rpopulation
 	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if rabbit[3] == 0 or rabbit[2] <= 1:
 			continue
-		if rand.randint(1, 10) >= rabbit[3]+3 and rabbit[1] >= rand.randint(1, 100):
+		if rand.randint(1, 10) <= rabbit[3]+3 and rabbit[1] >= rand.randint(1, 100):
 			
 			i = rand.randint(1,5)
 			while i > 0:
@@ -149,7 +153,7 @@ def nextDay():
 		foxEat()
 	day += 1
 
-# every 12 days, 
+# every 365 days, 
 def nextYear():
 	global year, rpopulation, rpop, fpop, fpopulation, simulation
 
@@ -162,8 +166,8 @@ def nextYear():
 				rpassed.append(i)
 				rpopulation -= 1
 			elif rabbit[2] > 2:
-				c = rabbit[2] * 4
-				if rand.randint(1, 100) >= c:
+				c = rabbit[2] * 2
+				if rand.randint(1, 100) <= c:
 					rpassed.append(i)
 					rpopulation -= 1
 		rpop = np.delete(rpop, rpassed, axis=0)
@@ -189,9 +193,10 @@ def nextYear():
 def main(rinput, maxday):
     global simulation, rabbit_data
     createRabbit(rinput)
+    print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
 
     while simulation == True:
-        if rpopulation < 1:
+        if rpop.shape[0] < 1:
             simulation = False
 
         nextDay()
@@ -211,15 +216,15 @@ def main(rinput, maxday):
             simulation = False
 
     rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
-    print(f"The current rpop is: {rpop}")
+    print(f"The rpop in sim {simnumber} is:\n {rpop} \n")
     print(f"The shape of the rabbit data is: {rabbit_data.shape}")
 
-    resetVar()  # Reset the simulation variables after storing rpop data
+    resetVar()
 
 def simulation():
 	sims = 3
-	rinput = 150
-	maxday = 4000
+	rinput = 100
+	maxday = 1000
 	
 	while sims > 0:
 		main(rinput, maxday)
@@ -229,6 +234,7 @@ def simulation():
 
 	#print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
+clear()
 simulation()
 
 # This function runs {sims} simulations, each one of {maxday} days
