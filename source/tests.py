@@ -4,8 +4,60 @@ import random as rand
 import pandas as pd
 import time, json, sys
 import matplotlib.pyplot as plt
+rpop = np.empty((0,5), int)
+rabbit_data = np.empty((0,5), int)
+rpopulation = 0
+rabbitfood = 0
+starvedr = 0
+deadrabbits = 0
+rmating = 10
+simnumber = 1
 
-passed = [1, 2]
-print(passed)
-passed = []
-print(passed)
+class Rabbit:
+	def __init__(self, gender, speed, age, simnumber):
+		# Female Rabbits have fertility 1-5 at birth
+		if gender == 1:
+			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)], [simnumber]])
+		# Male Rabbits have fertiliy 0
+		if gender == 0:
+			self.rarray = np.array([[gender], [speed], [age], [0], [simnumber]])
+
+
+	def get_arr(self):
+		return self.rarray
+
+def createRabbit(x):
+	global rpop, rpopulation
+	while(x > 0):
+		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
+		rpop = np.vstack([rpop, n.get_arr().T])
+		x -= 1
+		rpopulation += 1
+
+def resetVar():
+	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
+	simulation = True
+	print(rpop.shape)
+	rpop = np.empty((0,5), int)
+	rpopulation = 0
+	rspeeds = []
+	rabbitfood = 0
+	starvedr = 0
+	deadrabbits = 0
+	rmating = 10
+	totaloffspring = 0
+
+	fpop = np.empty((0,2), int)
+	fpopulation = 0
+
+	day = 1
+	year = 365
+	simnumber += 1
+
+
+createRabbit(50)
+print(rpop)
+resetVar()
+
+createRabbit(50)
+print(rpop)

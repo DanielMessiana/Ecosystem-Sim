@@ -47,11 +47,10 @@ year = 365
 simnumber = 1
 
 def resetVar():
-	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year
+	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
 	simulation = True
-	print(rpop)
+	print(rpop.shape)
 	rpop = np.empty((0,5), int)
-	print(rpop)
 	rpopulation = 0
 	rspeeds = []
 	rabbitfood = 0
@@ -65,6 +64,7 @@ def resetVar():
 
 	day = 1
 	year = 365
+	simnumber += 1
 
 def sigmoid(x):
 	return np.exp(x)/1 + np.exp(x)
@@ -101,8 +101,8 @@ def slowestDie():
 		starvedr -= 1
 """
 
-def reproduce(rpop, simnumber):
-	global rpopulation
+def reproduce(simnumber):
+	global rpopulation, rpop
 	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
@@ -154,7 +154,7 @@ def nextDay():
 	rpopulation = len(rpop)
 	#if starvedr > 0:
 		#slowestDie()
-	reproduce(rpop, simnumber)
+	reproduce(simnumber)
 	if day == year:
 		nextYear()
 	if fpopulation > 0:
@@ -215,11 +215,10 @@ def main(maxday):
 			simulation = False
 	rabbit_data = np.vstack([rabbit_data, rpop])
 	resetVar()
-	simnumber += 1
 
 def simulation():
 	sims = 5
-	maxday = 1300
+	maxday = 1500
 	
 	while sims > 0:
 		main(maxday)
