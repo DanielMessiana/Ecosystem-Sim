@@ -17,7 +17,12 @@ class Rabbit:
 
 
 	def get_arr(self):
-		return self.rarray
+		return self.rarray.T
+
+	def add_to_pop(self):
+		global rpop, rpopulation
+		rpop = np.vstack([rpop, self.rarray.T]) 
+		rpopulation += 1
 
 class Fox: 
 	def __init__(self, hunger, age):
@@ -32,10 +37,6 @@ simulation = True
 rpop = np.empty((0,5), int)
 rabbit_data = np.empty((0,5), int)
 rpopulation = 0
-rabbitfood = 0
-starvedr = 0
-deadrabbits = 0
-rmating = 10
 
 # Fox Variables
 fpop = np.empty((0,2), int)
@@ -47,17 +48,10 @@ year = 365
 simnumber = 1
 
 def resetVar():
-	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
+	global simulation, rpop, rpopulation, fpop, fpopulation, day, year, simnumber
 	simulation = True
-	print(rpop.shape)
 	rpop = np.empty((0,5), int)
 	rpopulation = 0
-	rspeeds = []
-	rabbitfood = 0
-	starvedr = 0
-	deadrabbits = 0
-	rmating = 10
-	totaloffspring = 0
 
 	fpop = np.empty((0,2), int)
 	fpopulation = 0
@@ -76,9 +70,8 @@ def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
 		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
-		rpop = np.vstack([rpop, n.get_arr().T])
+		n.add_to_pop()
 		x -= 1
-		rpopulation += 1
 
 # generates the rabbits food for the day
 def rabbitFood():
@@ -101,8 +94,8 @@ def slowestDie():
 		starvedr -= 1
 """
 
-def reproduce(simnumber):
-	global rpopulation, rpop
+def reproduce():
+	global rpopulation
 	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
@@ -121,10 +114,8 @@ def reproduce(simnumber):
 				g = rand.randint(0, 1)
 
 				o = Rabbit(g, new_speed, 0, simnumber)
-				new_rabbits = np.vstack([new_rabbits, o.get_arr().T])
+				o.add_to_pop()
 				i -= 1
-			rpopulation += 1
-	rpop = np.vstack([rpop, new_rabbits])
 
 # Fox Functions
 # -------------
@@ -144,17 +135,14 @@ def foxEat():
 		if rand.randint(1, 100) < 40:
 			rabbit_speeds = rpop[:, 1]
 
-
 # Simulation Functions
 # --------------------
 
 def nextDay():
-	global rpopulation, rabbitfood, starvedr, rmating, rpop, day
-	#rabbitBirth()
-	rpopulation = len(rpop)
+	global day
 	#if starvedr > 0:
 		#slowestDie()
-	reproduce(simnumber)
+	#reproduce()
 	if day == year:
 		nextYear()
 	if fpopulation > 0:
@@ -163,7 +151,9 @@ def nextDay():
 
 # every 12 days, 
 def nextYear():
-	global rpopulation, year, rpop, fpop, fpopulation, simulation
+	global year, rpopulation, rpop, fpop, fpopulation, simulation
+
+	# Ages Rabbits
 	if rpop.shape[0] > 0:
 		rpop[:, 2] += 1
 		rpassed = []
@@ -172,13 +162,15 @@ def nextYear():
 				rpassed.append(i)
 				rpopulation -= 1
 			elif rabbit[2] > 2:
-				c = rabbit[2] * 2
+				c = rabbit[2] * 4
 				if rand.randint(1, 100) >= c:
 					rpassed.append(i)
 					rpopulation -= 1
 		rpop = np.delete(rpop, rpassed, axis=0)
 	else:
 		simulation = False
+
+	# Ages Foxes
 	if fpop.shape[0] > 0:
 		fpop[:, 2] += 1
 		fpassed = []
@@ -187,49 +179,55 @@ def nextYear():
 				fpassed.append(i)
 				fpopulation -= 1
 			elif fox[2] > 2 and fox[2] != 7:
-				c = rabbit[2] * 10
+				c = fox[2] * 10
 				if rand.randint(0, 100) >= c:
 					fpassed.append(i)
 					fpopulation -= 1
 		fpop = np.delete(fpop, fpassed, axis=0)
 	year += 365
 
-def main(maxday):
-	global simulation, finalstats, simnumber, rDF, rpop, rabbit_data
-	createRabbit(150)
-	while simulation == True:
-		rabbitFood()
-		nextDay()
-		if rpopulation < 1:
-			simulation = False
-		if fpopulation > 0:
-			for fox in fpop:
-				if fox.hunger >= 2:
-					continue
-				if rand.randint(1, 100) <= 40:
-					fox.set_hunger(fox.hunger + 1)
-		if day == 25:
-			pass
-			#createFox(5)
-		if day == maxday:
-			simulation = False
-	rabbit_data = np.vstack([rabbit_data, rpop])
-	resetVar()
+def main(rinput, maxday):
+    global simulation, rabbit_data
+    createRabbit(rinput)
+
+    while simulation == True:
+        if rpopulation < 1:
+            simulation = False
+
+        nextDay()
+
+        # If there are foxes
+        if fpopulation > 0:
+            for fox in fpop:
+                if fox.hunger >= 2:
+                    continue
+                if rand.randint(1, 100) <= 40:
+                    fox.set_hunger(fox.hunger + 1)
+        # Creates foxes on day 25
+        if day == 25:
+            pass
+            #createFox(5)
+        if day == maxday:
+            simulation = False
+
+    rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
+    print(f"The current rpop is: {rpop}")
+    print(f"The shape of the rabbit data is: {rabbit_data.shape}")
+
+    resetVar()  # Reset the simulation variables after storing rpop data
 
 def simulation():
-	sims = 5
-	maxday = 1500
+	sims = 3
+	rinput = 150
+	maxday = 4000
 	
 	while sims > 0:
-		main(maxday)
+		main(rinput, maxday)
 		sims -= 1
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
-	print(rDF)
-	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
-
-
+	#print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
 simulation()
 

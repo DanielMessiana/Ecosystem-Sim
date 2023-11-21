@@ -37,7 +37,6 @@ def createRabbit(x):
 def resetVar():
 	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
 	simulation = True
-	print(rpop.shape)
 	rpop = np.empty((0,5), int)
 	rpopulation = 0
 	rspeeds = []
@@ -54,10 +53,11 @@ def resetVar():
 	year = 365
 	simnumber += 1
 
+variable1 = 8
+def change_x():
+	global variable1
+	variable1 = 7
 
-createRabbit(50)
-print(rpop)
-resetVar()
+change_x()
 
-createRabbit(50)
-print(rpop)
+print(variable1)
