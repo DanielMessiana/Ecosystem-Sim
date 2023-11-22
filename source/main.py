@@ -2,9 +2,12 @@
 import numpy as np
 import random as rand
 import pandas as pd
+import streamlit as st
 import seaborn as sns
 import time, json, sys, os
 import matplotlib.pyplot as plt
+
+st.title('Ecosystem Simulator')
 
 # Rabbit Variables
 # ----------------
@@ -12,7 +15,7 @@ import matplotlib.pyplot as plt
 class Rabbit:
 	def __init__(self, gender, speed, age, simnumber):
 		"""
-		Constructor Args/Rabbit Array Indexes:
+		Constructor Args/Rabbit Array Indices:
 		
 		0: Gender
 		1: Speed
@@ -42,6 +45,13 @@ rpopulation = 0
 
 class Fox: 
 	def __init__(self, gender, hunger, age):
+		"""
+		Constructor Args/Fox Array Indices:
+
+		0: Gender
+		1: Hunger
+		2: Age
+		"""
 		self.farray = np.array([[gender], [hunger], [age]])
 
 	def add_to_pop(self):
@@ -65,7 +75,7 @@ def resetVar():
 	rpop = np.empty((0,5), int)
 	rpopulation = 0
 
-	fpop = np.empty((0,2), int)
+	fpop = np.empty((0,3), int)
 	fpopulation = 0
 
 	day = 1
@@ -113,16 +123,16 @@ def createFox(x):
 	global fpop, fpopulation
 	while(x > 0):
 		fpop.append(Fox(rand.randint(1, 2), rand.randint(3,5)))
-		f = Fox(rand.randint())
+		f = Fox(rand.randint(0, 1), rand.randint())
 		x -= 1
 
 def foxEat():
-	global deadrabbits, rpopulation, rpop, fpop
-	deadrabbits = 0
+	global rpopulation, rpop, fpop
+	eaten = []
 
-	for fox in fpop:
+	for i, fox in enumerate(fpop):
 		if rand.randint(1, 100) < 40:
-			rabbit_speeds = rpop[:, 1]
+			h = fox[1]
 
 # Simulation Functions
 # --------------------
@@ -204,14 +214,15 @@ def main(rinput, maxday):
     rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
     #print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
     #print(f"The shape of the rabbit data is: {rabbit_data.shape}")
-    print(f"The day that sim {simnumber} ended at is: {day} \n")
+    #print(f"The day that sim {simnumber} ended at is: {day} \n")
+    print(f"This simulation ended at {rpop.shape[0]}")
 
     resetVar()
 
 # Runs x amount of simulations.
 def runSims(x):
 	rinput = 100
-	maxday = 3000
+	maxday = 1500
 	
 	while x > 0:
 		main(rinput, maxday)
@@ -219,11 +230,14 @@ def runSims(x):
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
-	print(rDF)
-	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
+	rDF
+	f"The average speed by {maxday} days in {sims} sims is: {np.mean(rDF['Speed'])}"
 
 clear()
-runSims(10)
+
+sims = st.number_input("No. of sims", min_value=1, max_value=50, step=1)
+st.button(f"Run {sims} Simulations", on_click=runSims(sims))
+
 
 # This function runs {sims} simulations, each one of {maxday} days
 

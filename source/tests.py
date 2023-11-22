@@ -2,6 +2,7 @@
 import numpy as np
 import random as rand
 import pandas as pd
+import streamlit as st
 import time, json, sys
 import matplotlib.pyplot as plt
 rpop = np.empty((0,5), int)
@@ -56,4 +57,9 @@ def resetVar():
 	day = 1
 	year = 365
 	simnumber += 1
+
+
+ages = [2, 5, 3]
+
+print(ages[0])
 
