@@ -23,10 +23,10 @@ class Rabbit:
 		"""
 		# Female Rabbits have fertility 1-5 at birth
 		if gender == 1:
-			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)], [simnumber]])
+			self.rarray = np.array([[1], [speed], [age], [rand.randint(1,5)], [simnumber]])
 		# Male Rabbits have fertiliy 0
 		if gender == 0:
-			self.rarray = np.array([[gender], [speed], [age], [0], [simnumber]])
+			self.rarray = np.array([[0], [speed], [age], [0], [simnumber]])
 
 	def add_to_pop(self):
 		global rpop, rpopulation
@@ -41,8 +41,8 @@ rpopulation = 0
 # ------------
 
 class Fox: 
-	def __init__(self, hunger, age):
-		self.farray = np.array([[hunger], [age]])
+	def __init__(self, gender, hunger, age):
+		self.farray = np.array([[gender], [hunger], [age]])
 
 	def add_to_pop(self):
 		global fpop, fpopulation
@@ -81,8 +81,8 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
-		n.add_to_pop()
+		r = Rabbit(rand.randint(0, 1), rand.randint(40, 70), rand.randint(3,5), simnumber)
+		r.add_to_pop()
 		x -= 1
 
 def reproduce():
@@ -90,7 +90,7 @@ def reproduce():
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if rabbit[3] == 0 or rabbit[2] < 2:
 			continue
-		if rand.randint(1, 10) < rabbit[3]+2 and rabbit[1] > rand.randint(1, 100):
+		if rand.randint(1, 10) < rabbit[3]+1 and rabbit[1] > rand.randint(1, 100):
 			
 			i = rand.randint(1,3)
 			while i > 0:
@@ -113,8 +113,8 @@ def createFox(x):
 	global fpop, fpopulation
 	while(x > 0):
 		fpop.append(Fox(rand.randint(1, 2), rand.randint(3,5)))
+		f = Fox(rand.randint())
 		x -= 1
-		fpopulation += 1
 
 def foxEat():
 	global deadrabbits, rpopulation, rpop, fpop
@@ -152,7 +152,7 @@ def nextYear():
 				rpassed.append(i)
 				rpopulation -= 1
 			elif rabbit[2] > 2:
-				c = rabbit[2] * 2
+				c = rabbit[2] * 3
 				if rand.randint(1, 100) <= c:
 					rpassed.append(i)
 					rpopulation -= 1
@@ -178,11 +178,13 @@ def nextYear():
 def main(rinput, maxday):
     global simulation, rabbit_data
     createRabbit(rinput)
-    print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
+    #print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
 
     while simulation == True:
 
         nextDay()
+        if rpop.shape[0] < 1:
+        	simulation = False
 
         # If there are foxes
         if fpopulation > 0:
@@ -200,16 +202,16 @@ def main(rinput, maxday):
             simulation = False
 
     rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
-    print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
-    print(f"The shape of the rabbit data is: {rabbit_data.shape}")
-    print(f"The day that sim {simnumber} ended at is: {day}")
+    #print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
+    #print(f"The shape of the rabbit data is: {rabbit_data.shape}")
+    print(f"The day that sim {simnumber} ended at is: {day} \n")
 
     resetVar()
 
 # Runs x amount of simulations.
 def runSims(x):
 	rinput = 100
-	maxday = 1000
+	maxday = 3000
 	
 	while x > 0:
 		main(rinput, maxday)
@@ -217,14 +219,13 @@ def runSims(x):
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
-	#print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
+	print(rDF)
+	print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
 clear()
-runSims(3)
+runSims(10)
 
 # This function runs {sims} simulations, each one of {maxday} days
-
-
 
 
 
