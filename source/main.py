@@ -49,7 +49,6 @@ class Fox:
 		fpop = np.vstack([fpop, self.farray.T]) 
 		fpopulation += 1
 
-
 fpop = np.empty((0,2), int)
 fpopulation = 0
 
@@ -175,6 +174,7 @@ def nextYear():
 		fpop = np.delete(fpop, fpassed, axis=0)
 	year += 365
 
+# The main function is one simulation. It starts with [rinput] rabbits and ends at [maxday] days
 def main(rinput, maxday):
     global simulation, rabbit_data
     createRabbit(rinput)
@@ -206,21 +206,21 @@ def main(rinput, maxday):
 
     resetVar()
 
-def simulation():
-	sims = 3
+# Runs x amount of simulations.
+def runSims(x):
 	rinput = 100
 	maxday = 1000
 	
-	while sims > 0:
+	while x > 0:
 		main(rinput, maxday)
-		sims -= 1
+		x -= 1
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
 	#print(f"The average speed by {maxday} days is: {np.mean(rDF['Speed'])}")
 
 clear()
-simulation()
+runSims(3)
 
 # This function runs {sims} simulations, each one of {maxday} days
 
