@@ -11,16 +11,22 @@ import matplotlib.pyplot as plt
 
 class Rabbit:
 	def __init__(self, gender, speed, age, simnumber):
+		"""
+		Constructor Args/Rabbit Array Indexes:
+		
+		0: Gender
+		1: Speed
+		2: Age
+		3: Fertility
+		4: Simnumber
+
+		"""
 		# Female Rabbits have fertility 1-5 at birth
 		if gender == 1:
 			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)], [simnumber]])
 		# Male Rabbits have fertiliy 0
 		if gender == 0:
 			self.rarray = np.array([[gender], [speed], [age], [0], [simnumber]])
-
-
-	def get_arr(self):
-		return self.rarray.T
 
 	def add_to_pop(self):
 		global rpop, rpopulation
@@ -38,8 +44,10 @@ class Fox:
 	def __init__(self, hunger, age):
 		self.farray = np.array([[hunger], [age]])
 
-	def set_hunger(self, hunger):
-		self.farray[0] = hunger
+	def add_to_pop(self):
+		global fpop, fpopulation
+		fpop = np.vstack([fpop, self.farray.T]) 
+		fpopulation += 1
 
 
 fpop = np.empty((0,2), int)
@@ -79,19 +87,18 @@ def createRabbit(x):
 		x -= 1
 
 def reproduce():
-	new_rabbits = np.empty((0, 5), int)
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
-		if rabbit[3] == 0 or rabbit[2] <= 1:
+		if rabbit[3] == 0 or rabbit[2] < 2:
 			continue
-		if rand.randint(1, 10) <= rabbit[3]+3 and rabbit[1] >= rand.randint(1, 100):
+		if rand.randint(1, 10) < rabbit[3]+2 and rabbit[1] > rand.randint(1, 100):
 			
-			i = rand.randint(1,5)
+			i = rand.randint(1,3)
 			while i > 0:
-				gene1 = rabbit[1]
-				gene2 = rand.choice(rpop[:,1])
-				new_speed = ((gene1 + gene2)/2)+rand.randint(-2, 2)
-				if rand.randint(1,100) < 3:
+				sgene1 = rabbit[1]
+				sgene2 = rand.choice(rpop[:,1])
+				new_speed = (((sgene1 + sgene2)/2)+rand.randint(-2, 2)).round()
+				if rand.randint(1,100) < 5:
 					new_speed += rand.randint(-20, 20)
 
 				g = rand.randint(0, 1)
@@ -127,6 +134,8 @@ def nextDay():
 	#reproduce()
 	if day == year:
 		nextYear()
+	if day == day + rand.randint(-15,15):
+		reproduce()
 	if fpopulation > 0:
 		foxEat()
 	day += 1
@@ -149,8 +158,6 @@ def nextYear():
 					rpassed.append(i)
 					rpopulation -= 1
 		rpop = np.delete(rpop, rpassed, axis=0)
-	else:
-		simulation = False
 
 	# Ages Foxes
 	if fpop.shape[0] > 0:
@@ -174,8 +181,6 @@ def main(rinput, maxday):
     print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
 
     while simulation == True:
-        if rpop.shape[0] < 1:
-            simulation = False
 
         nextDay()
 
@@ -190,12 +195,14 @@ def main(rinput, maxday):
         if day == 25:
             pass
             #createFox(5)
+
         if day == maxday:
             simulation = False
 
     rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
-    print(f"The rpop in sim {simnumber} is:\n {rpop} \n")
+    print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
     print(f"The shape of the rabbit data is: {rabbit_data.shape}")
+    print(f"The day that sim {simnumber} ended at is: {day}")
 
     resetVar()
 
