@@ -93,7 +93,7 @@ def createRabbit(x):
 		x -= 1
 
 def reproduce():
-	# Filter
+	# Filters to get the females that will reproduce
 
 	# Gets all males
 	filter_sex = rpop[:, 0] == 1
@@ -217,17 +217,13 @@ def main(rinput, maxday):
         # Creates foxes on day 25
         if day == 25:
             pass
-            #createFox(5)
+            #createFox(finput)
 
         if day == maxday:
             simulation = False
 
     rabbit_data = np.vstack([rabbit_data, rpop])  # Store rpop data in rabbit_data
-    #print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
-    #print(f"The shape of the rabbit data is: {rabbit_data.shape}")
-    #print(f"The day that sim {simnumber} ended at is: {day} \n")
-
-    resetVar()
+    resetVar() # Resets variables to 0
 
 # Runs x amount of simulations.
 def runSims(x):
@@ -240,6 +236,7 @@ def runSims(x):
 
 	st.header("All Surviors (across all simulations)")
 	rDF
+	#plt.plot(range(1, sims), average_speeds[:, 1], 'o')
 	f"Avg speed in {maxday} days from {sims} sims is: {np.mean(rDF['Speed'])}"
 	f"Avg surivors in {maxday} days from {sims} sims is: {rDF.shape[0]/sims}"
 
@@ -251,9 +248,10 @@ st.title('Ecosystem Simulator')
 st.divider()
 
 st.header("Starting Variables")
-sims = st.number_input("No. of sims (20 is a good amount)", min_value=1, max_value=500, step=1, value=20)
-maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, step=1, value=1000)
-rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, step=1, value=100)
+sims = st.number_input("No. of sims (20 is a good amount)", min_value=1, max_value=500, value=20)
+maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, value=1000)
+rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, value=100)
+finput = st.number_input("No. of starting foxes", min_value=0, max_value=100, value=15)
 st.divider()
 st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
 
