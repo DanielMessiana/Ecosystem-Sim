@@ -157,19 +157,13 @@ def nextYear():
 	# Ages Rabbits
 	if rpop.shape[0] > 0:
 		rpop[:, 2] += 1
-		rpassed = []
-		# For Loop
-		for i, rabbit in enumerate(rpop):
-			if rabbit[2] == 9:
-				rpassed.append(i)
-				rpopulation -= 1
-			elif rabbit[2] > 2:
-				c = rabbit[2] * 3
-				if rand.randint(1, 100) <= c:
-					rpassed.append(i)
-					rpopulation -= 1
-		rpop = np.delete(rpop, rpassed, axis=0)
+		# Only the rabbits below age 9 survive
+		filter_rpop = rpop[:, 2] < 9
+		rpop = rpop[filter_rpop]
 
+		filter_rpop_survival = np.random.randint(1, 100, size=rpop.shape[0]) > rpop[:, 2] * 2
+		rpop = rpop[filter_rpop_survival]
+ 
 	# Ages Foxes
 	if fpop.shape[0] > 0:
 		fpop[:, 2] += 1
@@ -224,7 +218,6 @@ def main(rinput, maxday):
 
 # Runs x amount of simulations.
 def runSims(x):
-	rinput = 100
 	
 	while x > 0:
 		main(rinput, maxday)
@@ -237,10 +230,10 @@ def runSims(x):
 
 clear()
 
-sims = st.number_input("No. of sims", min_value=1, max_value=500, step=1, value=20)
-maxday = st.number_input("No. of days", min_value=1, max_value=5000, step=1, value=1000)
+sims = st.number_input("No. of sims (20 is a good amount)", min_value=1, max_value=500, step=1, value=20)
+maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, step=1, value=1000)
+rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, step=1, value=100)
 st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
-
 
 # This function runs {sims} simulations, each one of {maxday} days
 

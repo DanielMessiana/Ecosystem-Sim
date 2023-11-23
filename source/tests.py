@@ -3,7 +3,7 @@ import numpy as np
 import random as rand
 import pandas as pd
 import streamlit as st
-import time, json, sys
+import time, json, sys, os
 import matplotlib.pyplot as plt
 rpop = np.empty((0,5), int)
 rabbit_data = np.empty((0,5), int)
@@ -13,6 +13,7 @@ starvedr = 0
 deadrabbits = 0
 rmating = 10
 simnumber = 1
+clear = lambda: os.system('clear')
 
 class Rabbit:
 	def __init__(self, gender, speed, age, simnumber):
@@ -35,7 +36,7 @@ class Rabbit:
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,5), simnumber)
+		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,8), simnumber)
 		n.add_to_pop()
 		x -= 1
 
@@ -58,8 +59,15 @@ def resetVar():
 	year = 365
 	simnumber += 1
 
+clear()
 
-createRabbit(15)
+createRabbit(20)
 
-print(enumerate(rpop))
+filter_rpop = rpop[:, 2] * 2 < rand.randint(1, 100)
 
+print(filter_rpop)
+print(rpop)
+
+rpop = rpop[filter_rpop]
+print('\n\n')
+print(rpop)
