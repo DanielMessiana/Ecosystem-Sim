@@ -7,8 +7,6 @@ import seaborn as sns
 import time, json, sys, os
 import matplotlib.pyplot as plt
 
-st.title('Ecosystem Simulator')
-
 # Rabbit Variables
 # ----------------
 
@@ -66,7 +64,6 @@ fpopulation = 0
 
 # Simulator Variables and Functions
 simulation = True
-clear = lambda: os.system('clear')
 day = 1
 year = 365
 simnumber = 1
@@ -243,18 +240,32 @@ def runSims(x):
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
+	st.header("All Surviors (across all simulations)")
 	rDF
 	f"Avg speed in {maxday} days from {sims} sims is: {np.mean(rDF['Speed'])}"
 	f"Avg surivors in {maxday} days from {sims} sims is: {rDF.shape[0]/sims}"
 
-clear()
+# Streamlit Output
+# ---------------
 
+st.title('Ecosystem Simulator')
+
+st.divider()
+
+st.header("Starting Variables")
 sims = st.number_input("No. of sims (20 is a good amount)", min_value=1, max_value=500, step=1, value=20)
 maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, step=1, value=1000)
 rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, step=1, value=100)
+st.divider()
 st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
 
 # This function runs {sims} simulations, each one of {maxday} days
+st.divider()
 
+f"Data on the sim: "
+st.caption("Starting Speeds = 40-60")
+st.caption("Starting Ages = 3-5")
+st.caption("   ")
+st.caption("Above are arbirary scalars I chose at random.")
 
 
