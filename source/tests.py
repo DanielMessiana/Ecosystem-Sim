@@ -59,7 +59,7 @@ def resetVar():
 	simnumber += 1
 
 
-ages = [2, 5, 3]
+createRabbit(15)
 
-print(ages[0])
+print(enumerate(rpop))
 

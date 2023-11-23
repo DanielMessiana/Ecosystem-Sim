@@ -96,6 +96,7 @@ def createRabbit(x):
 		x -= 1
 
 def reproduce():
+	# For Loop
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit
 		if rabbit[3] == 0 or rabbit[2] < 2:
@@ -157,8 +158,9 @@ def nextYear():
 	if rpop.shape[0] > 0:
 		rpop[:, 2] += 1
 		rpassed = []
+		# For Loop
 		for i, rabbit in enumerate(rpop):
-			if rabbit[2] == 8:
+			if rabbit[2] == 9:
 				rpassed.append(i)
 				rpopulation -= 1
 			elif rabbit[2] > 2:
@@ -172,16 +174,18 @@ def nextYear():
 	if fpop.shape[0] > 0:
 		fpop[:, 2] += 1
 		fpassed = []
+		# For Loop
 		for i, fox in enumerate(fox):
 			if fox[2] == 8:
 				fpassed.append(i)
 				fpopulation -= 1
-			elif fox[2] > 2 and fox[2] != 7:
+			elif fox[2] > 2:
 				c = fox[2] * 10
 				if rand.randint(0, 100) >= c:
 					fpassed.append(i)
 					fpopulation -= 1
 		fpop = np.delete(fpop, fpassed, axis=0)
+
 	year += 365
 
 # The main function is one simulation. It starts with [rinput] rabbits and ends at [maxday] days
@@ -215,14 +219,12 @@ def main(rinput, maxday):
     #print(f"The rpop in sim {simnumber} is(at the end):\n {rpop} \n")
     #print(f"The shape of the rabbit data is: {rabbit_data.shape}")
     #print(f"The day that sim {simnumber} ended at is: {day} \n")
-    print(f"This simulation ended at {rpop.shape[0]}")
 
     resetVar()
 
 # Runs x amount of simulations.
 def runSims(x):
 	rinput = 100
-	maxday = 1500
 	
 	while x > 0:
 		main(rinput, maxday)
@@ -235,8 +237,9 @@ def runSims(x):
 
 clear()
 
-sims = st.number_input("No. of sims", min_value=1, max_value=50, step=1)
-st.button(f"Run {sims} Simulations", on_click=runSims(sims))
+sims = st.number_input("No. of sims", min_value=1, max_value=500, step=1, value=20)
+maxday = st.number_input("No. of days", min_value=1, max_value=5000, step=1, value=1000)
+st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
 
 
 # This function runs {sims} simulations, each one of {maxday} days
