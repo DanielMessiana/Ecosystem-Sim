@@ -18,6 +18,8 @@ class Rabbit:
 		Constructor Args/Rabbit Array Indices:
 		
 		0: Gender
+			1 = Female 
+			2 = Male
 		1: Speed
 		2: Age
 		3: Fertility
@@ -91,11 +93,31 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		r = Rabbit(rand.randint(0, 1), rand.randint(40, 70), rand.randint(3,5), simnumber)
+		r = Rabbit(np.random.randint(2), np.random.randint(40, 71), np.random.randint(3,6), simnumber)
 		r.add_to_pop()
 		x -= 1
 
 def reproduce():
+	# Filter
+
+	# Gets all females 
+	filter_sex = rpop[:, 0] == 1
+	f_rabbits = rpop[filter_sex]
+
+	# above the age of 1
+	filter_age = f_rabbits[:, 2] > 1
+	f_rabbits = f_rabbits[filter_age]
+
+	# Uses fertility as chance to reproduce
+	fertility_check = f_rabbits[:, 3]+1 > numpy.random.randint(10)
+	f_rabbits = f_rabbits[fertility_check]
+
+	# Uses speed as chance to reproduce
+	speed_check = f_rabbits[:, 1] > numpy.random.randint(100)
+	f_rabbits = f_rabbits[speed_check]
+
+
+
 	# For Loop
 	for index, rabbit in enumerate(rpop):
 		# If the rabbit is male or an age younger than 2, it checks the next rabbit

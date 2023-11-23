@@ -61,13 +61,4 @@ def resetVar():
 
 clear()
 
-createRabbit(20)
-
-filter_rpop = rpop[:, 2] * 2 < rand.randint(1, 100)
-
-print(filter_rpop)
-print(rpop)
-
-rpop = rpop[filter_rpop]
-print('\n\n')
-print(rpop)
+print(np.random.randint(6))
