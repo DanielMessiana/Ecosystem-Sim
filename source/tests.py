@@ -59,6 +59,10 @@ def resetVar():
 	year = 365
 	simnumber += 1
 
-clear()
+createRabbit(200)
 
-print(np.random.randint(6))
+g = np.random.choice(rpop[:, 1])
+
+print(g)
+
+

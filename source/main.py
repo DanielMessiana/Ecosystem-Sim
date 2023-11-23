@@ -93,12 +93,16 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		r = Rabbit(np.random.randint(2), np.random.randint(40, 71), np.random.randint(3,6), simnumber)
+		r = Rabbit(np.random.randint(2), np.random.randint(40, 61), np.random.randint(3,6), simnumber)
 		r.add_to_pop()
 		x -= 1
 
 def reproduce():
 	# Filter
+
+	# Gets all males
+	filter_sex = rpop[:, 0] == 1
+	m_rabbits = rpop[filter_sex]
 
 	# Gets all females 
 	filter_sex = rpop[:, 0] == 1
@@ -109,35 +113,27 @@ def reproduce():
 	f_rabbits = f_rabbits[filter_age]
 
 	# Uses fertility as chance to reproduce
-	fertility_check = f_rabbits[:, 3]+1 > numpy.random.randint(10)
+	fertility_check = f_rabbits[:, 3]+1 > np.random.randint(10)
 	f_rabbits = f_rabbits[fertility_check]
 
 	# Uses speed as chance to reproduce
-	speed_check = f_rabbits[:, 1] > numpy.random.randint(100)
+	speed_check = f_rabbits[:, 1] > np.random.randint(100)+20
 	f_rabbits = f_rabbits[speed_check]
 
+	new_genes = np.empty((0, 4), int)
 
+	for index, rabbit in enumerate(f_rabbits):
+		offspring = np.random.randint(1, 4)
+		while offspring > 0:
+			speed1 = np.random.choice(f_rabbits[:, 1])
+			speed2 = np.random.choice(m_rabbits[:, 1])
 
-	# For Loop
-	for index, rabbit in enumerate(rpop):
-		# If the rabbit is male or an age younger than 2, it checks the next rabbit
-		if rabbit[3] == 0 or rabbit[2] < 2:
-			continue
-		if rand.randint(1, 10) < rabbit[3]+1 and rabbit[1] > rand.randint(1, 100):
-			
-			i = rand.randint(1,3)
-			while i > 0:
-				sgene1 = rabbit[1]
-				sgene2 = rand.choice(rpop[:,1])
-				new_speed = (((sgene1 + sgene2)/2)+rand.randint(-2, 2)).round()
-				if rand.randint(1,100) < 5:
-					new_speed += rand.randint(-20, 20)
+			speed3 = ((speed1 + speed2 / 2) + np.random.randint(-5, 6)).round()
+			g = rand.randint(0, 1)
 
-				g = rand.randint(0, 1)
-
-				o = Rabbit(g, new_speed, 0, simnumber)
-				o.add_to_pop()
-				i -= 1
+			o = Rabbit(g, speed3, 0, simnumber)
+			o.add_to_pop()
+			offspring -= 1
 
 # Fox Functions
 # -------------
@@ -248,7 +244,8 @@ def runSims(x):
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
 	rDF
-	f"The average speed by {maxday} days in {sims} sims is: {np.mean(rDF['Speed'])}"
+	f"Avg speed in {maxday} days from {sims} sims is: {np.mean(rDF['Speed'])}"
+	f"Avg surivors in {maxday} days from {sims} sims is: {rDF.shape[0]/sims}"
 
 clear()
 
