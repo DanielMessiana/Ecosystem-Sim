@@ -141,7 +141,16 @@ def createFox(x):
 		x -= 1
 
 def foxHunt():
-	pass
+	global fpop, fpopulation, rpop
+
+	if fpopulation > 0 and rpopulation > 0:
+	
+		random_rabbits = np.random.randint(0, rpopulation, fpopulation)
+
+		caught_rabits = 
+
+		
+
 
 # Simulation Functions
 # --------------------
@@ -155,7 +164,7 @@ def nextDay():
 	if day == day + rand.randint(-15,15):
 		reproduce()
 	if fpopulation > 0:
-		foxEat()
+		foxHunt()
 	day += 1
 
 # every 365 days
