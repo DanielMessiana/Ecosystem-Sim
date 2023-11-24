@@ -136,17 +136,12 @@ def reproduce():
 def createFox(x):
 	global fpop, fpopulation
 	while(x > 0):
-		fpop.append(Fox(rand.randint(1, 2), rand.randint(3,5)))
 		f = Fox(rand.randint(0, 1), rand.randint())
+		f.add_to_pop()
 		x -= 1
 
-def foxEat():
-	global rpopulation, rpop, fpop
-	eaten = []
-
-	for i, fox in enumerate(fpop):
-		if rand.randint(1, 100) < 40:
-			h = fox[1]
+def foxHunt():
+	pass
 
 # Simulation Functions
 # --------------------
