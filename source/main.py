@@ -147,21 +147,7 @@ def foxHunt():
 
 	r_eaten = []
 
-	if fpopulation > 0 and rpopulation > 0:
-	
-		random_rabbits = rpop[:, 1] < np.random.randint(0, 100+1)
-		caught_rabbits = rpop[random_rabbits]
 
-		for index, fox in enumerate(fpop):
-			while fox[1] > 0:
-				rand_rabbit = np.random.randint(0, rpop.shape[0], size=1)
-				speed = rpop[rand_rabbit[0]][1]
-				if speed < np.random.randint(0, 100+1):
-					rpop = np.delete(rpop, rand_rabbit)
-					rpopulation -= 1
-					fox[1] -= 1
-				else:
-					break
 
 # Simulation Functions
 # --------------------
@@ -179,7 +165,7 @@ def nextDay():
 		if np.random.randint(0, 100+1) < 80:
 			fpop[:, 1] += np.random.randint(0, 2+1)
 		filter_fpop = fpop[:, 1] < 7
-		fpop = fpop[filter_rpop]
+		fpop = fpop[filter_fpop]
 		fpopulation = fpop.shape[0]
 	day += 1
 
@@ -202,18 +188,14 @@ def nextYear():
 	# Ages Foxes
 	if fpop.shape[0] > 0:
 		fpop[:, 2] += 1
-		fpassed = []
-		# For Loop
-		for i, fox in enumerate(fox):
-			if fox[2] == 8:
-				fpassed.append(i)
-				fpopulation -= 1
-			elif fox[2] > 2:
-				c = fox[2] * 10
-				if rand.randint(0, 100) >= c:
-					fpassed.append(i)
-					fpopulation -= 1
-		fpop = np.delete(fpop, fpassed, axis=0)
+		# Only the foxes below age 9 survive
+		filter_fpop = fpop[:, 2] < 9
+		fpop = fpop[filter_fpop]
+
+		filter_fpop_survival = np.random.randint(1, 100, size=rpop.shape[0]) > rpop[:, 2] * 2
+		fpop = fpop[filter_fpop_survival]
+
+		fpopulation = fpop.shape[0]
 
 	year += 365
 
@@ -229,13 +211,6 @@ def main(rinput, maxday):
         if rpop.shape[0] < 1:
         	simulation = False
 
-        # If there are foxes
-        if fpopulation > 0:
-            for fox in fpop:
-                if fox.hunger >= 2:
-                    continue
-                if rand.randint(1, 100) <= 40:
-                    fox.set_hunger(fox.hunger + 1)
         # Creates foxes on day 25
         if day == 25:
             createFox(finput)
