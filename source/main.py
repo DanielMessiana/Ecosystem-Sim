@@ -57,7 +57,7 @@ class Fox:
 		fpop = np.vstack([fpop, self.farray.T]) 
 		fpopulation += 1
 
-fpop = np.empty((0,2), int)
+fpop = np.empty((0,3), int)
 fpopulation = 0
 
 # Simulator Variables and Functions
@@ -88,7 +88,7 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		r = Rabbit(np.random.randint(2), np.random.randint(40, 61), np.random.randint(3,6), simnumber)
+		r = Rabbit(np.random.randint(2), np.random.randint(40, 60+1), np.random.randint(2,5+1), simnumber)
 		r.add_to_pop()
 		x -= 1
 
@@ -112,7 +112,7 @@ def reproduce():
 	f_rabbits = f_rabbits[fertility_check]
 
 	# Uses speed as chance to reproduce
-	speed_check = f_rabbits[:, 1] > np.random.randint(100)+20
+	speed_check = f_rabbits[:, 1] > np.random.randint(0, 100+1)+30
 	f_rabbits = f_rabbits[speed_check]
 
 	new_genes = np.empty((0, 4), int)
@@ -123,7 +123,9 @@ def reproduce():
 			speed1 = np.random.choice(f_rabbits[:, 1])
 			speed2 = np.random.choice(m_rabbits[:, 1])
 
-			speed3 = ((speed1 + speed2 / 2) + np.random.randint(-5, 6)).round()
+			speed3 = ((speed1 + speed2 / 2) + np.random.randint(-2, 2+1)).round()
+			if np.random.randint(0, 100) < 2:
+				speed3 += np.random.randint(-20, 20+1)
 			g = rand.randint(0, 1)
 
 			o = Rabbit(g, speed3, 0, simnumber)
@@ -136,28 +138,37 @@ def reproduce():
 def createFox(x):
 	global fpop, fpopulation
 	while(x > 0):
-		f = Fox(rand.randint(0, 1), rand.randint())
+		f = Fox(rand.randint(0, 1), np.random.randint(1, 3+1), np.random.randint(2,5+1))
 		f.add_to_pop()
 		x -= 1
 
 def foxHunt():
-	global fpop, fpopulation, rpop
+	global fpop, fpopulation, rpop, rpopulation
+
+	r_eaten = []
 
 	if fpopulation > 0 and rpopulation > 0:
 	
-		random_rabbits = np.random.randint(0, rpopulation, fpopulation)
+		random_rabbits = rpop[:, 1] < np.random.randint(0, 100+1)
+		caught_rabbits = rpop[random_rabbits]
 
-		caught_rabits = 
-
-		
-
+		for index, fox in enumerate(fpop):
+			while fox[1] > 0:
+				rand_rabbit = np.random.randint(0, rpop.shape[0], size=1)
+				speed = rpop[rand_rabbit[0]][1]
+				if speed < np.random.randint(0, 100+1):
+					rpop = np.delete(rpop, rand_rabbit)
+					rpopulation -= 1
+					fox[1] -= 1
+				else:
+					break
 
 # Simulation Functions
 # --------------------
 
 # every day
 def nextDay():
-	global day
+	global day, fpop, fpopulation
 	#reproduce()
 	if day == year:
 		nextYear()
@@ -165,6 +176,11 @@ def nextDay():
 		reproduce()
 	if fpopulation > 0:
 		foxHunt()
+		if np.random.randint(0, 100+1) < 80:
+			fpop[:, 1] += np.random.randint(0, 2+1)
+		filter_fpop = fpop[:, 1] < 7
+		fpop = fpop[filter_rpop]
+		fpopulation = fpop.shape[0]
 	day += 1
 
 # every 365 days
@@ -180,6 +196,8 @@ def nextYear():
 
 		filter_rpop_survival = np.random.randint(1, 100, size=rpop.shape[0]) > rpop[:, 2] * 2
 		rpop = rpop[filter_rpop_survival]
+
+		rpopulation = rpop.shape[0]
  
 	# Ages Foxes
 	if fpop.shape[0] > 0:
@@ -220,8 +238,7 @@ def main(rinput, maxday):
                     fox.set_hunger(fox.hunger + 1)
         # Creates foxes on day 25
         if day == 25:
-            pass
-            #createFox(finput)
+            createFox(finput)
 
         if day == maxday:
             simulation = False
@@ -252,7 +269,7 @@ st.title('Ecosystem Simulator')
 st.divider()
 
 st.header("Starting Variables")
-sims = st.number_input("No. of sims (20 is a good amount)", min_value=1, max_value=500, value=20)
+sims = st.number_input("No. of sims (50 is a good amount)", min_value=1, max_value=500, value=50)
 maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, value=1000)
 rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, value=100)
 finput = st.number_input("No. of starting foxes", min_value=0, max_value=100, value=15)

@@ -61,8 +61,7 @@ def resetVar():
 
 createRabbit(200)
 
-g = np.random.choice(rpop[:, 1])
 
-print(g)
 
+print(np.random.choice(np.ndenumerate(rpop)))
 
