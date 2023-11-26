@@ -147,7 +147,7 @@ def foxHunt():
 	global fpop, fpopulation, rpop, rpopulation
 
 	for i, fox in enumerate(fpop):
-		if 75 > np.random.randint(100+11):
+		if 65 > np.random.randint(100+11):
 			random_indices = np.random.choice(rpop.shape[0], size=min(fox[1], rpop.shape[0]), replace=True)
 
 			rand_rabbits = rpop[random_indices]
@@ -158,7 +158,6 @@ def foxHunt():
 			rpop = np.delete(rpop, caught_rabbits, axis=0)
 			rpopulation -= len(caught_rabbits)
 			fpop[i, 1] = fox[1] - len(caught_rabbits)
-
 
 # Simulation Functions
 # --------------------
@@ -216,7 +215,6 @@ def nextYear():
 def main(rinput, maxday):
     global simulation, rabbit_data
     createRabbit(rinput)
-    #print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
     dataday = 100
 
     while simulation == True:
