@@ -246,11 +246,20 @@ def runSims(x):
 	rDF
 	st.subheader(f"{sims} Simulations of {maxday} days")
 	show_chart = st.checkbox("Show Chart")
-	if show_chart:	
-		plt.plot(rDF['Age'],rDF['Speed'] , 'o')
-		plt.xlabel("Age")
-		plt.ylabel("Speed")
-		st.pyplot(plt)
+	if show_chart:
+		x_axis = st.selectbox(
+			'Set x label.',
+			('Age', 'Gender', 'Speed', 'Fertility', 'Iteration'))
+		y_axis = st.selectbox(
+			'Set y label.',
+			('Speed', 'Age', 'Gender', 'Fertility', 'Iteration'))
+		if x_axis == y_axis:
+			"------ You cannot use the same x and y axis! ------"
+		else:
+			plt.plot(rDF[x_axis], rDF[y_axis] , 'o')
+			plt.xlabel(x_axis)
+			plt.ylabel(y_axis)
+			st.pyplot(plt)
 	f"Avg speed in {maxday} days from {sims} sims is: {np.mean(rDF['Speed'])}"
 	f"Avg surivors in {maxday} days from {sims} sims is: {rDF.shape[0]/sims}"
 
