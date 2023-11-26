@@ -119,7 +119,7 @@ def reproduce():
 	new_genes = np.empty((0, 4), int)
 
 	for index, rabbit in enumerate(f_rabbits):
-		offspring = np.random.randint(1, 4)
+		offspring = np.random.randint(1, 5)
 		while offspring > 0:
 			speed1 = np.random.choice(f_rabbits[:, 1])
 			speed2 = np.random.choice(m_rabbits[:, 1])
@@ -260,15 +260,14 @@ st.divider()
 st.header("Starting Variables")
 sims = st.number_input("No. of sims (50 is a good amount)", min_value=1, max_value=500, value=50)
 maxday = st.number_input("No. of days (365 days is one year)", min_value=1, max_value=5000, value=1000)
-rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, value=100)
+rinput = st.number_input("No. of starting rabbits", min_value=5, max_value=500, value=150)
 finput = st.number_input("No. of starting foxes", min_value=0, max_value=100, value=15)
 st.divider()
 st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
 
-# This function runs {sims} simulations, each one of {maxday} days
 st.divider()
 
-f"Data on the sim: "
+f"Data in the simulator: "
 st.caption("Starting Speeds = 40-60")
 st.caption("Starting Ages = 3-5")
 st.caption("What day foxes are added = 250")
