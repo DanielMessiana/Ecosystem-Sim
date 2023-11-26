@@ -89,7 +89,7 @@ def sigmoid(x):
 def createRabbit(x):
 	global rpop, rpopulation
 	while(x > 0):
-		r = Rabbit(np.random.randint(2), np.random.randint(40, 60+1), np.random.randint(2,5+1), simnumber)
+		r = Rabbit(np.random.randint(2), np.random.randint(30, 60+1), np.random.randint(7), simnumber)
 		r.add_to_pop()
 		x -= 1
 
@@ -288,8 +288,8 @@ st.write("The foxes hunt the rabbits and catch them based on how high their spee
 st.divider()
 
 "Data in the simulator: "
-st.caption("Starting Speeds = 40-60")
-st.caption("Starting Ages = 3-5")
+st.caption("Starting Speeds = 30-60")
+st.caption("Starting Ages = 0-6")
 st.caption("What day foxes are added = 250")
 st.caption("   ")
 st.caption("Above are arbirary scalars I chose at random.")
