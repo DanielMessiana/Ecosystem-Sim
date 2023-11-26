@@ -4,6 +4,7 @@ import random as rand
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import time
 
 # Rabbit Variables
 # ----------------
@@ -145,8 +146,18 @@ def createFox(x):
 def foxHunt():
 	global fpop, fpopulation, rpop, rpopulation
 
-	r_eaten = []
+	for i, fox in enumerate(fpop):
+		if 75 > np.random.randint(100+11):
+			random_indices = np.random.choice(rpop.shape[0], size=min(fox[1], rpop.shape[0]), replace=True)
 
+			rand_rabbits = rpop[random_indices]
+
+			filter_caught = rand_rabbits[:, 1] > np.random.randint(100, size=rand_rabbits.shape[0])
+			caught_rabbits = random_indices[filter_caught]
+
+			rpop = np.delete(rpop, caught_rabbits, axis=0)
+			rpopulation -= len(caught_rabbits)
+			fpop[i, 1] = fox[1] - len(caught_rabbits)
 
 
 # Simulation Functions
@@ -163,7 +174,9 @@ def nextDay():
 	if fpopulation > 0:
 		foxHunt()
 		if np.random.randint(0, 100+1) < 80:
-			fpop[:, 1] += np.random.randint(0, 2+1)
+			random_hungers = np.random.randint(5, size=fpop.shape[0])
+
+			fpop[:, 1] += random_hungers
 		filter_fpop = fpop[:, 1] < 7
 		fpop = fpop[filter_fpop]
 		fpopulation = fpop.shape[0]
@@ -204,6 +217,7 @@ def main(rinput, maxday):
     global simulation, rabbit_data
     createRabbit(rinput)
     #print(f"The rpop in sim {simnumber} is(at the start):\n {rpop} \n")
+    dataday = 100
 
     while simulation == True:
 
@@ -212,7 +226,7 @@ def main(rinput, maxday):
         	simulation = False
 
         # Creates foxes on day 25
-        if day == 25:
+        if day == 250:
             createFox(finput)
 
         if day == maxday:
@@ -230,6 +244,7 @@ def runSims(x):
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
+	st.divider()
 	st.header("All Surviors (across all simulations)")
 	rDF
 	#plt.plot(range(1, sims), average_speeds[:, 1], 'o')
@@ -257,6 +272,7 @@ st.divider()
 f"Data on the sim: "
 st.caption("Starting Speeds = 40-60")
 st.caption("Starting Ages = 3-5")
+st.caption("What day foxes are added = 250")
 st.caption("   ")
 st.caption("Above are arbirary scalars I chose at random.")
 
