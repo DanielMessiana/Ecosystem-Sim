@@ -265,7 +265,14 @@ st.button(f"Run {sims} Simulations of {maxday} days.", on_click=runSims(sims))
 
 st.divider()
 
-f"Data in the simulator: "
+st.subheader("About the Simulator:")
+st.write("This simulator shows rabbits and foxes living together. The rabbits reproduce and pass on their genes, which are [Gender, Speed, Age, Fertility]")
+" "
+st.write("The foxes hunt the rabbits and catch them based on how high their speed is. The higher the speed of a rabbit, the more unlikely it is for a fox to catch it. Hopefully this shows natural selection in the rabbits.")
+
+st.divider()
+
+"Data in the simulator: "
 st.caption("Starting Speeds = 40-60")
 st.caption("Starting Ages = 3-5")
 st.caption("What day foxes are added = 250")
