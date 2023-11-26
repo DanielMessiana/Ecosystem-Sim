@@ -244,7 +244,6 @@ def runSims(x):
 
 	rDF = pd.DataFrame(rabbit_data, columns=['Gender', 'Speed', 'Age', 'Fertility', 'Iteration'])
 
-	st.divider()
 	st.header("All Surviors (across all simulations)")
 	rDF
 	#plt.plot(range(1, sims), average_speeds[:, 1], 'o')
