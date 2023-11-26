@@ -244,7 +244,13 @@ def runSims(x):
 
 	st.header("All Surviors (across all simulations)")
 	rDF
-	#plt.plot(range(1, sims), average_speeds[:, 1], 'o')
+	st.subheader(f"{sims} Simulations of {maxday} days")
+	show_chart = st.checkbox("Show Chart")
+	if show_chart:	
+		plt.plot(rDF['Age'],rDF['Speed'] , 'o')
+		plt.xlabel("Age")
+		plt.ylabel("Speed")
+		st.pyplot(plt)
 	f"Avg speed in {maxday} days from {sims} sims is: {np.mean(rDF['Speed'])}"
 	f"Avg surivors in {maxday} days from {sims} sims is: {rDF.shape[0]/sims}"
 
