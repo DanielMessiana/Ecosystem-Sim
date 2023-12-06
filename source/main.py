@@ -113,7 +113,7 @@ def reproduce():
 	f_rabbits = f_rabbits[fertility_check]
 
 	# Uses speed as chance to reproduce
-	speed_check = f_rabbits[:, 1] > np.random.randint(0, 100+1)+30
+	speed_check = f_rabbits[:, 1] > np.random.randint(100+1)+30
 	f_rabbits = f_rabbits[speed_check]
 
 	new_genes = np.empty((0, 4), int)
@@ -166,9 +166,11 @@ def foxHunt():
 def nextDay():
 	global day, fpop, fpopulation
 	#reproduce()
+	day += 1
 	if day == year:
 		nextYear()
-	if day == day + rand.randint(-15,15):
+		day = 1
+	if  day >= 60 and day <= 273:
 		reproduce()
 	if fpopulation > 0:
 		foxHunt()
@@ -179,7 +181,6 @@ def nextDay():
 		filter_fpop = fpop[:, 1] < 7
 		fpop = fpop[filter_fpop]
 		fpopulation = fpop.shape[0]
-	day += 1
 
 # every 365 days
 def nextYear():
@@ -209,7 +210,6 @@ def nextYear():
 
 		fpopulation = fpop.shape[0]
 
-	year += 365
 
 # The main function is one simulation. It starts with [rinput] rabbits and ends at [maxday] days
 def main(rinput, maxday):
