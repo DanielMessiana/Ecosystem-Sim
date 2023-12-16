@@ -18,14 +18,16 @@ class Rabbit:
 			1 = Female 
 			2 = Male
 		1: Speed
-		2: Age
-		3: Fertility
-		4: Simnumber
+		2: Energy
+		3: Age
+		4: Fertility
+		5: Birthday
+		6: Simnumber
 
 		"""
 		# Female Rabbits have fertility 1-5 at birth
 		if gender == 1:
-			self.rarray = np.array([[1], [speed], [age], [rand.randint(1,5)], [simnumber]])
+			self.rarray = np.array([[1], [speed],  [age], [rand.randint(1,5)], [simnumber]])
 		# Male Rabbits have fertiliy 0
 		if gender == 0:
 			self.rarray = np.array([[0], [speed], [age], [0], [simnumber]])
