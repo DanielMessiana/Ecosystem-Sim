@@ -1,67 +1,93 @@
-# Eco System Simulator
+# Eco System Simulator in pygame
 import numpy as np
 import random as rand
 import pandas as pd
 import streamlit as st
-import time, json, sys, os
 import matplotlib.pyplot as plt
-rpop = np.empty((0,5), int)
-rabbit_data = np.empty((0,5), int)
-rpopulation = 0
-rabbitfood = 0
-starvedr = 0
-deadrabbits = 0
-rmating = 10
-simnumber = 1
-clear = lambda: os.system('clear')
+import time, pygame, sys
+
+# Screen for Simulation
+# ---------------------
+
+pygame.init()
+width, height = 1500, 1000
+screen = pygame.display.set_mode((width, height))
+clock = pygame.time.Clock()
+main = True
+
+white = (255, 255, 255)
+brown = (150, 75, 0)
+
+# Rabbit Variables
+# ----------------
 
 class Rabbit:
-	def __init__(self, gender, speed, age, simnumber):
-		# Female Rabbits have fertility 1-5 at birth
-		if gender == 1:
-			self.rarray = np.array([[gender], [speed], [age], [rand.randint(1,5)], [simnumber]])
-		# Male Rabbits have fertiliy 0
-		if gender == 0:
-			self.rarray = np.array([[gender], [speed], [age], [0], [simnumber]])
+	def __init__(self, speed, size, x, y):
+		self.speed = speed
+		self.size = size
+		self.position = [x, y]
+		self.hunger = 100
 
+	def draw_rabbit(self, position):
+		pygame.draw.rect(screen, brown, (self.position[0], self.position[1], self.size, self.size))
 
-	def get_arr(self):
-		return self.rarray.T
+	def move(self):
+		x = self.position[0]
+		y = self.position[1]
+		move = np.random.randint(0, 100)
+		if move > 90:
+			direction = rand.choice(["left", "right", "up", "down"])
 
-	def add_to_pop(self):
-		global rpop, rpopulation
-		rpop = np.vstack([rpop, self.rarray.T]) 
-		rpopulation += 1
+			if direction == "left":
+				self.position[0] -= self.speed
+			elif direction == "right":
+				self.position[0] += self.speed
+			elif direction == "up":
+				self.position[1] -= self.speed
+			elif direction == "down":
+				self.position[1] += self.speed
 
-def createRabbit(x):
-	global rpop, rpopulation
-	while(x > 0):
-		n = Rabbit(rand.randint(0, 1), rand.randint(50, 70), rand.randint(3,8), simnumber)
-		n.add_to_pop()
-		x -= 1
+			# Constrain Rabbit to screen
+			if x > 1500:
+				self.position[0] = 1500
+			elif x < 0:
+				self.position[0] = 0
 
-def resetVar():
-	global simulation, firstgame, rpop, rpopulation, rspeeds, rabbitfood, starvedr, deadrabbits, rmating, totaloffspring, fpop, fpopulation, day, year, simnumber
-	simulation = True
-	rpop = np.empty((0,5), int)
-	rpopulation = 0
-	rspeeds = []
-	rabbitfood = 0
-	starvedr = 0
-	deadrabbits = 0
-	rmating = 10
-	totaloffspring = 0
+			elif y > 1000:
+				self.position[1] = 1000
+			elif y < 0:
+				self.position[1] = 0
 
-	fpop = np.empty((0,2), int)
-	fpopulation = 0
+	def get_position(self):
+		return self.position
 
-	day = 1
-	year = 365
-	simnumber += 1
+def create_rabbit(n):
+	global rpop
+	while n > 0:
+		speed = np.random.randint(10, 20)
+		size = np.random.randint(10, 40)
+		x, y = width - np.random.randint(0, width), height - np.random.randint(0, height)
 
-createRabbit(200)
+		r = Rabbit(speed, size, x, y)
+		rpop.append(r)
+		n -= 1
 
+while main == True:
+	rpop = []
+	create_rabbit(15)
+	while True:
 
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
 
-print(np.random.choice(np.ndenumerate(rpop)))
+		screen.fill(white)
 
+		for rabbit in rpop:
+			rabbit.move()
+			rabbit.draw_rabbit(rabbit.position)
+
+		pygame.display.flip()
+
+		pygame.time.Clock().tick(60)
