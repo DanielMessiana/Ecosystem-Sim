@@ -31,7 +31,7 @@ class Rabbit:
 	def __init__(self, speed, size, x=None, y=None):
 		self.speed = speed
 		self.size = size
-		self.size += self.speed
+		self.speed -= sigma(self.size)
 		if x is None or y is None:
 			# If x and y are not provided, generate random starting position
 			self.position = np.array([rand.uniform(0, width), rand.uniform(0, height)], dtype=np.float32)
@@ -43,7 +43,7 @@ class Rabbit:
 		self.total_reward = 0
 		self.max_hunger = 100
 		self.hunger = 100
-		self.hunger_decay_rate = 0.01
+		self.hunger_decay_rate = sigma(speed)
 		self.target_position = np.array([rand.uniform(0, width), rand.uniform(0, height)])
 		self.age = 0
 		self.energy = 100
@@ -112,18 +112,20 @@ class Rabbit:
 					velocity = food_direction * self.speed
 					self.position += velocity
 				else:
-					# If no food in the visual field, move towards the target position
-					target_direction = self.target_position - self.position
-					target_direction /= np.linalg.norm(target_direction)  # Normalize to unit vector
-					velocity = target_direction * self.speed
-					self.position += velocity
+					if np.random.rand() < 0.5:
+						target_direction = self.target_position - self.position
+						target_direction /= np.linalg.norm(target_direction)  # Normalize to unit vector
+						velocity = target_direction * self.speed
+						self.position += velocity
+					else:
+						self.wander_during_break()
 
 				# Constrain Rabbit to screen
 				self.position[0] = np.clip(self.position[0], 0, width)
 				self.position[1] = np.clip(self.position[1], 0, height)
 
 				self.hunger -= self.hunger_decay_rate
-				self.energy -= 0.1
+				self.energy -= sigma(self.speed + self.size)
 
 				self.speed = max(2, self.speed - 0.05 * (self.max_hunger - self.hunger))
 
@@ -135,6 +137,13 @@ class Rabbit:
 					self.reset
 
 				self.reproduction_cooldown = max(0, self.reproduction_cooldown - 1)
+
+				if np.random.rand() < 0.5:
+					self.resting = True
+					self.resting_duration = 0
+				else:
+					self.sitting = True
+					self.sitting_duration = 0
 
 		for other_rabbit in rpop:
 			if other_rabbit != self:
@@ -178,8 +187,7 @@ class Rabbit:
 		random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
 		velocity = random_direction * self.speed
 		self.position += velocity
-		self.total_reward += 3
-
+		self.total_reward += 15
 
 	def eat_food(self):
 		for food in food_src:
@@ -188,7 +196,6 @@ class Rabbit:
 				food.hp -= 1
 				self.hunger += 1
 				self.energy += 10
-				self.total_reward += 1
 
 	def reproduce(self):
 		# Check conditions for reproduction (e.g., age, energy level)
@@ -199,8 +206,9 @@ class Rabbit:
 			new_rabbit.max_hunger = self.max_hunger  # Inherit max_hunger
 			# You can add more traits to inherit
 
-			self.reproduction_cooldown = 100
+			self.reproduction_cooldown = 1000
 			self.max_offspring -= 1
+			self.total_reward += 1
 
 			return new_rabbit
 		else:
@@ -220,8 +228,10 @@ class Rabbit:
 		else:
 		    reward -= 1
 
-		reward += sigma(self.hunger) * 2
+		if self.resting or self.sitting:
+			reward += 4
 
+		reward += sigma(self.hunger)
 
 		# You can add more complex reward mechanisms here based on your specific requirements
 
@@ -301,7 +311,7 @@ clock = pygame.time.Clock()
 main = True
 
 white = (255, 255, 255)
-brown = (150, 75, 0)
+brown = (128, 128, 128)
 light_brown = (194, 164, 132, 140)
 green = (0, 255, 0)
 
