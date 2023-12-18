@@ -67,7 +67,7 @@ class Rabbit:
 
 		# Calculate the center and radius of the visual field (circle)
 		visual_field_center = self.position
-		visual_field_radius = 50  # Adjust the radius as needed
+		visual_field_radius = 30  # Adjust the radius as needed
 
 		# Filter food items within the visual field
 		food_in_visual_field = [food for food in food_src if np.linalg.norm(self.position - np.array([food.x, food.y])) < visual_field_radius]
@@ -135,7 +135,6 @@ class Rabbit:
 			return None
 
 	def calculate_reward(self, food_src):
-		# Example: Reward based on staying within the screen boundaries
 		reward = 0
 
 		for food in food_src:
@@ -183,9 +182,12 @@ class Food:
 		self.x = np.random.randint(0, width)
 		self.y = np.random.randint(0, height)
 
+		self.x = int(self.x)
+		self. y = int(self.y)
+
 	def draw_food(self):
 		if self.hp > 0:
-			pygame.draw.circle(food_surface, green, (self.x, self.y), self.hp)
+			pygame.draw.circle(food_surface, green, (int(self.x), int(self.y)), self.hp)
 
 	def update(self):
 		self.hp -= self.decay_rate
@@ -206,6 +208,7 @@ def update_food(food_src):
 
 pygame.init()
 width, height = 1900, 1150
+scale_factor = width / 2
 screen = pygame.display.set_mode((width, height))
 screen_buffer = pygame.Surface((width, height), pygame.SRCALPHA)
 clock = pygame.time.Clock()
@@ -250,6 +253,7 @@ def run_simulation():
 
 			# Inside the training loop
 			target_direction = np.array(rabbit.position - current_position, dtype=np.float32)
+			target_direction /= np.linalg.norm(target_direction)  # Normalize to unit vector
 			target_direction_tensor = torch.tensor([target_direction[0], target_direction[1], 0, 0], dtype=torch.float32)
 
 			# Train the neural network
@@ -265,34 +269,30 @@ def run_simulation():
 
 
 def move_rabbits(rpop, food_src):
-	rabbit_positions = np.array([rabbit.position for rabbit in rpop])
-
 	if not food_src:
 		return
 
 	# Ensure food_positions is an array of shape (num_food, 2)
 	food_positions = np.array([[food.x, food.y] for food in food_src])
 
-	# Calculate distances, directions, and velocities in a vectorized manner
-	distances = np.linalg.norm(rabbit_positions[:, np.newaxis, :] - food_positions, axis=2)
+	for rabbit in rpop:
+		# Calculate distances, directions, and velocities in a vectorized manner
+		distances = np.linalg.norm(rabbit.position - food_positions, axis=1)
 
-	# Check for valid indices
-	valid_indices = np.arange(len(food_positions))
-	closest_food_indices = np.argmin(distances, axis=1)
-	closest_food_indices = np.where(closest_food_indices < len(valid_indices), closest_food_indices, valid_indices[-1])
+		# Find the closest food
+		closest_food_index = np.argmin(distances)
+		closest_food = food_positions[closest_food_index]
 
-	food_directions = food_positions[closest_food_indices] - rabbit_positions
-	food_directions /= np.linalg.norm(food_directions, axis=1)[:, np.newaxis]
-	velocities = food_directions * np.array([rabbit.speed for rabbit in rpop])[:, np.newaxis]
+		food_direction = closest_food - rabbit.position
+		food_direction /= np.linalg.norm(food_direction)
+		velocity = food_direction * rabbit.speed
 
-	# Update rabbit positions in a vectorized manner
-	rabbit_positions += velocities
-	# Constrain rabbits to the screen
-	rabbit_positions[:, 0] = np.clip(rabbit_positions[:, 0], 0, width)
-	rabbit_positions[:, 1] = np.clip(rabbit_positions[:, 1], 0, height)
-	# Update rabbit positions in the original objects
-	for i, rabbit in enumerate(rpop):
-		rabbit.position = rabbit_positions[i]
+		# Update rabbit position
+		rabbit.position += velocity
+
+		# Constrain rabbits to the screen
+		rabbit.position[0] = np.clip(rabbit.position[0], 0, width)
+		rabbit.position[1] = np.clip(rabbit.position[1], 0, height)
 
 
 # Run multiple simulations
