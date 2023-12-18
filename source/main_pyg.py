@@ -54,34 +54,34 @@ class Rabbit:
 		self.resting_cooldown = 0
 		self.max_resting_duration = 500
 		self.resting_duration = 0
+		self.sitting = False
+		self.sitting_duration = 0
+
+		self.social_cooldown = 0
+		self.max_social_cooldown = 500
 
 	def draw_rabbit(self, position):
 		pygame.draw.circle(rabbit_surface, brown, (int(self.position[0]), int(self.position[1])), self.size)
 
-	def move(self, food_src):
+	def move(self, food_src, rpop):
 		self.last_position = self.position.copy()
 
 		near_burrow = any(burrow.is_inside(self.position) for burrow in burrow_src)
 
 		if near_burrow:
-			# Increase resting duration even if not already resting
+			# Rabbit is near a burrow, start resting
+			self.resting = True
 			self.resting_duration += clock.get_time()
-
-			# If not already resting, start resting
-			if not self.resting and self.resting_cooldown <= 0:
-				self.resting = True
-				self.resting_duration = 0
 
 			# Check if the rabbit has rested enough, reset speed and cooldown
 			if self.resting_duration >= self.max_resting_duration:
 				self.resting = False
-				self.resting_cooldown = 100  # Cooldown before the rabbit can rest again
+				self.resting_duration = 0
 				self.speed = np.random.randint(2, 8)
-
 		else:
 			if self.resting:
 
-				self.speed = min(self.speed + 0.1, np.random.randint(2, 8))
+				self.speed = 0
 			else:
 				if self.resting_cooldown > 0:
 					self.resting_cooldown -= 1
@@ -136,17 +136,50 @@ class Rabbit:
 
 				self.reproduction_cooldown = max(0, self.reproduction_cooldown - 1)
 
+		for other_rabbit in rpop:
+			if other_rabbit != self:
+				distance = np.linalg.norm(self.position - other_rabbit.position)
+				if distance < 20 and self.social_cooldown <= 0 and other_rabbit.social_cooldown <= 0:
+					self.play_with_rabbit(other_rabbit)
+					break
 
+		if self.social_cooldown > 0:
+			self.social_cooldown -= 1
+
+		if self.sitting:
+
+			self.sitting_duration += clock.get_time()
+
+			self.total_reward += 10
+
+
+			if self.sitting_duration >= self.max_resting_duration:
+				self.sitting = False
+				self.sitting_duration = 0
+
+		elif not self.resting and self.resting_cooldown <= 0:
+
+			if np.random.rand() < 0.5:
+				self.resting = True
+				self.resting_duration
+			else:
+				self.sitting = True
+				self.sitting_duration = 0
+
+	def play_with_rabbit(self, other_rabbit):
+
+		self.total_reward += 7
+		other_rabbit.total_reward += 7
+		self.social_cooldown = self.max_social_cooldown
+		other_rabbit.social_cooldown = other_rabbit.max_social_cooldown
 
 	def wander_during_break(self):
-		if np.random.rand() < 0.5:
-			random_direction = np.array([rand.uniform(-1, 1), rand.uniform(-1, 1)])
-			random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
-			velocity = random_direction * self.speed
-			self.position += velocity
-			self.total_reward += 3
-		else:
-			pass
+		random_direction = np.array([rand.uniform(-1, 1), rand.uniform(-1, 1)])
+		random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
+		velocity = random_direction * self.speed
+		self.position += velocity
+		self.total_reward += 3
+
 
 	def eat_food(self):
 		for food in food_src:
@@ -276,54 +309,38 @@ food_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 burrow_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 rabbit_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
-def run_simulation():
+def run_simulation_batch(rpop, food_src, nn_model, optimizer, burrow_src):
+	for rabbit in rpop:
+		rabbit.move(food_src, rpop)
+		rabbit.update_reward(food_src)
+		rabbit.eat_food()
+
+	input_data = torch.tensor([[rabbit.position[0], rabbit.position[1]] for rabbit in rpop], dtype=torch.float32)
+	target_directions = torch.tensor([[rabbit.target_position[0], rabbit.target_position[1], 0, 0] for rabbit in rpop], dtype=torch.float32)
+
+	optimizer.zero_grad()
+	outputs = nn_model(input_data)
+	loss = nn.functional.mse_loss(outputs, target_directions)
+	loss.backward()
+	optimizer.step()
+
+def run_simulation(nn_model, optimizer, burrow_src):
 	# Create a set of rabbits and food sources for each simulation
 	speed = np.random.randint(2, 8)
 	size = np.random.randint(5, 20)
 
 	food_src = [Food(np.random.randint(10, 20)) for _ in range(10)]
-	#burrow_src = [Burrow(np.random.randint(0, width), np.random.randint(0, height)) for _ in range(np.random.randint(2,6))]
+	burrow_src = [Burrow(np.random.randint(0, width), np.random.randint(0, height)) for _ in range(np.random.randint(2,6))]
 	rpop = [Rabbit(speed, size) for _ in range(20)]
 
-	num_epochs = 1
+	num_epochs = 500
 	for epoch in range(num_epochs):
-		for rabbit in rpop:
-			rabbit.move(food_src)
-			rabbit.update_reward(food_src)
+		run_simulation_batch(rpop, food_src, nn_model, optimizer, burrow_src)
 
-			new_rabbit = rabbit.reproduce()
-			if new_rabbit is not None:
-				rpop.append(new_rabbit)
-
-			# Generate random training data
-			input_data = torch.tensor([[rand.uniform(0, width), rand.uniform(0, height)]], dtype=torch.float32)
-
-			# Get the current position of the rabbit
-			current_position = rabbit.position.copy()
-
-			# Calculate the target direction based on the movement
-			target_direction = np.array(rabbit.position - current_position, dtype=np.float32)
-
-			# Reset the rabbit position
-			rabbit.position = current_position
-
-			# Inside the training loop
-			target_direction = np.array(rabbit.position - current_position, dtype=np.float32)
-			target_direction /= np.linalg.norm(target_direction)  # Normalize to unit vector
-			target_direction_tensor = torch.tensor([target_direction[0], target_direction[1], 0, 0], dtype=torch.float32)
-
-			# Train the neural network
-			rabbit.optimizer.zero_grad()
-			output = rabbit.nn(input_data)
-			loss = nn.functional.mse_loss(output, target_direction_tensor)
-			loss.backward()
-			rabbit.optimizer.step()
-
-		food_src = update_food(food_src)
-		move_rabbits(rpop, food_src, burrow_src)
+	food_src = update_food(food_src)
+	move_rabbits(rpop, food_src, burrow_src)
 
 	return rpop, food_src
-
 
 def move_rabbits(rpop, food_src, burrow_src):
 	if not food_src:
@@ -382,8 +399,11 @@ def create_burrow(burrow_src):
 		burrow_src.append(b)
 		n -= 1
 
+direction_predictor = DirectionPredictor()
+optimizer = optim.Adam(direction_predictor.parameters(), lr=0.0001)  
+
 for simulation in range(num_simulations):
-	rpop, food_src = run_simulation()
+	rpop, food_src = run_simulation(direction_predictor, optimizer, burrow_src)
 	all_rabbit_populations.append(rpop)
 	all_food_sources.append(food_src)
 
