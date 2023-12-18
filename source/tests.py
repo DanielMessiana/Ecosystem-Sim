@@ -9,7 +9,7 @@ import time, pygame, sys
 np.random.seed()
 
 def sigma(x):
-	return 1/1+np.exp(-x)
+	return 1 / (1 + np.exp(-x))
 
 # Define Neural Network
 class DirectionPredictor(nn.Module):
@@ -28,18 +28,22 @@ class DirectionPredictor(nn.Module):
 # ----------------
 
 class Rabbit:
-	def __init__(self, speed, size, x, y):
+	def __init__(self, speed, size, x=None, y=None):
 		self.speed = speed
 		self.size = size
 		self.size += self.speed
-		self.position = np.array([x, y], dtype=np.float32)
+		if x is None or y is None:
+			# If x and y are not provided, generate random starting position
+			self.position = np.array([rand.uniform(0, width), rand.uniform(0, height)], dtype=np.float32)
+		else:
+			self.position = np.array([x, y], dtype=np.float32)
 		self.nn = DirectionPredictor()
 		self.optimizer = optim.Adam(self.nn.parameters(), lr=0.0001)
 		self.last_position = self.position.copy()
 		self.total_reward = 0
 		self.max_hunger = 100
 		self.hunger = 100
-		self.hunger_decay_rate = 0.1
+		self.hunger_decay_rate = 0.01
 		self.target_position = np.array([rand.uniform(0, width), rand.uniform(0, height)])
 		self.age = 0
 		self.energy = 100
@@ -54,6 +58,12 @@ class Rabbit:
 		if np.linalg.norm(self.position - self.target_position) < 10:
 			# If reached, set a new random target position
 			self.target_position = np.array([rand.uniform(0, width), rand.uniform(0, height)])
+
+		if self.hunger > 70 and np.random.rand() < 0.1:
+			# Wander slowly or sit in place
+			self.speed = 1  # Adjust the speed as needed
+			self.wander_during_break()
+			return
 
 		# Calculate the center and radius of the visual field (circle)
 		visual_field_center = self.position
@@ -92,6 +102,16 @@ class Rabbit:
 		if np.random.rand() < age_death_probability:
 			self.reset
 
+	def wander_during_break(self):
+		if np.random.rand() < 0.5:
+			random_direction = np.array([rand.uniform(-1, 1), rand.uniform(-1, 1)])
+			random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
+			velocity = random_direction * self.speed
+			self.position += velocity
+			self.total_reward += 1
+		else:
+			pass
+
 	def eat_food(self):
 		for food in food_src:
 			distance = np.linalg.norm(self.position - np.array([food.x, food.y]))
@@ -99,7 +119,7 @@ class Rabbit:
 				food.hp -= 1
 				self.hunger += 1
 				self.energy += 10
-				self.total_reward += 2
+				self.total_reward += 1
 
 	def reproduce(self):
 		# Check conditions for reproduction (e.g., age, energy level)
@@ -156,9 +176,10 @@ class Rabbit:
 		self.energy = 100
 
 class Food:
-	def __init__(self, hp, decay_rate=0.05):
+	decay_rate = 0.05
+
+	def __init__(self, hp):
 		self.hp = hp
-		self.decay_rate = decay_rate
 		self.x = np.random.randint(0, width)
 		self.y = np.random.randint(0, height)
 
@@ -170,7 +191,7 @@ class Food:
 		self.hp -= self.decay_rate
 
 def create_food(food_src):
-	if np.random.randint(0, 100) > 97:
+	if np.random.randint(0, 100) > 96:
 		n = np.random.randint(0, 10)
 		while n > 0:
 			f = Food(np.random.randint(10, 30))
@@ -197,16 +218,15 @@ green = (0, 255, 0)
 food_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 rabbit_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
-def run_simulation(food_src):
+def run_simulation():
 	# Create a set of rabbits and food sources for each simulation
 	speed = np.random.randint(2, 8)
 	size = np.random.randint(20, 30)
-	x, y = width - np.random.randint(0, width), height - np.random.randint(0, height)
 
 	food_src = [Food(np.random.randint(10, 30)) for _ in range(10)]
-	rpop = [Rabbit(speed, size, x, y) for _ in range(20)]
+	rpop = [Rabbit(speed, size) for _ in range(20)]
 
-	num_epochs = 200
+	num_epochs = 1
 	for epoch in range(num_epochs):
 		for rabbit in rpop:
 			rabbit.move(food_src)
@@ -243,6 +263,38 @@ def run_simulation(food_src):
 
 	return rpop, food_src
 
+
+def move_rabbits(rpop, food_src):
+	rabbit_positions = np.array([rabbit.position for rabbit in rpop])
+
+	if not food_src:
+		return
+
+	# Ensure food_positions is an array of shape (num_food, 2)
+	food_positions = np.array([[food.x, food.y] for food in food_src])
+
+	# Calculate distances, directions, and velocities in a vectorized manner
+	distances = np.linalg.norm(rabbit_positions[:, np.newaxis, :] - food_positions, axis=2)
+
+	# Check for valid indices
+	valid_indices = np.arange(len(food_positions))
+	closest_food_indices = np.argmin(distances, axis=1)
+	closest_food_indices = np.where(closest_food_indices < len(valid_indices), closest_food_indices, valid_indices[-1])
+
+	food_directions = food_positions[closest_food_indices] - rabbit_positions
+	food_directions /= np.linalg.norm(food_directions, axis=1)[:, np.newaxis]
+	velocities = food_directions * np.array([rabbit.speed for rabbit in rpop])[:, np.newaxis]
+
+	# Update rabbit positions in a vectorized manner
+	rabbit_positions += velocities
+	# Constrain rabbits to the screen
+	rabbit_positions[:, 0] = np.clip(rabbit_positions[:, 0], 0, width)
+	rabbit_positions[:, 1] = np.clip(rabbit_positions[:, 1], 0, height)
+	# Update rabbit positions in the original objects
+	for i, rabbit in enumerate(rpop):
+		rabbit.position = rabbit_positions[i]
+
+
 # Run multiple simulations
 num_simulations = 10
 all_rabbit_populations = []
@@ -251,7 +303,7 @@ all_food_sources = []
 food_src = []
 
 for simulation in range(num_simulations):
-	rpop, food_src = run_simulation(food_src)
+	rpop, food_src = run_simulation()
 	all_rabbit_populations.append(rpop)
 	all_food_sources.append(food_src)
 
@@ -263,14 +315,18 @@ seconds_per_simulation = 20
 simulation_duration = seconds_per_simulation * 1000
 current_simulation_time = 0
 
+font = pygame.font.Font(None, 40) 
+
 while main:
-	screen_buffer.fill(white)
+	screen.fill(white)
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			main = False
 
 	if simulation_running:
+		rabbit_surface.fill((0, 0, 0, 0))
+
 		# Draw food surfaces for the current simulation
 		food_src = all_food_sources[current_simulation]
 		create_food(food_src)
@@ -284,18 +340,19 @@ while main:
 
 		# Draw rabbit surfaces for the current simulation
 		rpop = all_rabbit_populations[current_simulation]
-		rabbit_surface.fill((0, 0, 0, 0))
+		move_rabbits(rpop, food_src)
+
 		for rabbit in rpop:
-			if np.random.randint(0, 100) > 60:
-			    rabbit.hunger -= np.random.randint(0, 3)
-			rabbit.move(food_src)
 			new_rabbit = rabbit.reproduce()
 			if new_rabbit is not None:
-				rabbit_population.append(new_rabbit)
+				rpop.append(new_rabbit)
 			rabbit.eat_food()
 			rabbit.draw_rabbit(rabbit.position)
 
 		screen_buffer.blit(rabbit_surface, (0, 0))
+
+		simulation_number_text = font.render(f"Simulation: {current_simulation + 1}/{num_simulations}", True, (1, 0, 0))
+		screen.blit(simulation_number_text, (width - simulation_number_text.get_width() - 10, 10))
 
 		current_simulation_time += clock.get_time()
 
@@ -306,7 +363,8 @@ while main:
 			if current_simulation >= num_simulations:
 				main = False
 
-		screen.blit(screen_buffer, (0,0))
+		screen.blit(food_surface, (0, 0))
+		screen.blit(rabbit_surface, (0, 0))
 
 		pygame.display.flip()
 
